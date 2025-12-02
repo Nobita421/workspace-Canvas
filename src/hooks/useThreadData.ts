@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { Thread } from '@/lib/types';
 import { mapThreadFromDB, mapThreadToDB, mapCommentFromDB, mapCommentToDB } from '@/lib/utils';
 import { User } from '@supabase/supabase-js';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UseThreadDataProps {
     user: User | null;
@@ -13,6 +14,7 @@ interface UseThreadDataProps {
 }
 
 export function useThreadData({ user, userName, currentPlaygroundId, showError, showSuccess }: UseThreadDataProps) {
+    const { session } = useAuth();
     const [threads, setThreads] = useState<Thread[]>([]);
     const threadsRef = useRef<Thread[]>([]);
 
@@ -26,7 +28,11 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError, 
         const fetchThreads = async () => {
             let threadsData: any[] = [];
             try {
-                const res = await fetch(`/api/threads?playgroundId=${currentPlaygroundId}`);
+                const headers: HeadersInit = {};
+                if (session?.access_token) {
+                    headers['Authorization'] = `Bearer ${session.access_token}`;
+                }
+                const res = await fetch(`/api/threads?playgroundId=${currentPlaygroundId}`, { headers });
                 const json = await res.json();
                 if (!res.ok) throw new Error(json.error);
                 threadsData = json.threads || [];
@@ -214,7 +220,10 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError, 
             try {
                 const res = await fetch('/api/threads', {
                     method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {})
+                    },
                     body: JSON.stringify({
                         userId: user.id,
                         playgroundId: currentPlaygroundId,
@@ -324,7 +333,10 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError, 
             try {
                 const res = await fetch('/api/threads', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {})
+                    },
                     body: JSON.stringify({
                         userId: user.id,
                         playgroundId: currentPlaygroundId,
@@ -382,7 +394,10 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError, 
         try {
             const res = await fetch('/api/threads', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {})
+                },
                 body: JSON.stringify({
                     userId: user.id,
                     playgroundId: currentPlaygroundId,
