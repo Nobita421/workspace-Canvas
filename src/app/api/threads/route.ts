@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, createAuthenticatedClient } from '@/lib/supabase';
 import { 
     getCache, 
     setCache, 
@@ -35,7 +35,12 @@ export async function GET(request: NextRequest) {
 
     // Fetch from Supabase
     try {
-        let query = supabase
+        const authHeader = request.headers.get('Authorization');
+        const supabaseClient = authHeader 
+            ? createAuthenticatedClient(authHeader.replace('Bearer ', '')) 
+            : supabase;
+
+        let query = supabaseClient
             .from('threads')
             .select('*');
             
@@ -116,7 +121,12 @@ export async function POST(request: NextRequest) {
         delete threadData.playgroundId;
 
         // Insert into Supabase
-        const { data, error } = await supabase
+        const authHeader = request.headers.get('Authorization');
+        const supabaseClient = authHeader 
+            ? createAuthenticatedClient(authHeader.replace('Bearer ', '')) 
+            : supabase;
+
+        const { data, error } = await supabaseClient
             .from('threads')
             .insert(threadData)
             .select()
@@ -181,7 +191,12 @@ export async function PATCH(request: NextRequest) {
         }
 
         // Update in Supabase
-        const { data, error } = await supabase
+        const authHeader = request.headers.get('Authorization');
+        const supabaseClient = authHeader 
+            ? createAuthenticatedClient(authHeader.replace('Bearer ', '')) 
+            : supabase;
+
+        const { data, error } = await supabaseClient
             .from('threads')
             .update(updatesData)
             .eq('id', threadId)
@@ -238,7 +253,12 @@ export async function DELETE(request: NextRequest) {
     }
 
     try {
-        const { error } = await supabase
+        const authHeader = request.headers.get('Authorization');
+        const supabaseClient = authHeader 
+            ? createAuthenticatedClient(authHeader.replace('Bearer ', '')) 
+            : supabase;
+
+        const { error } = await supabaseClient
             .from('threads')
             .delete()
             .eq('id', threadId);
