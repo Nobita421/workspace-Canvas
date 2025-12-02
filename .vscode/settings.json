@@ -1,0 +1,57 @@
+{
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "chat.mcp.serverSampling": {
+    "new_pwa_c/.vscode/mcp.json: context7": {
+      "allowedModels": [
+        "copilot/o3-mini"
+      ]
+    },
+    "new_pwa_c/.vscode/mcp.json: firecrawl-local": {
+      "allowedModels": [
+        "copilot/o3-mini"
+      ]
+    },
+    "new_pwa_c/.vscode/mcp.json: sequentialthinking": {
+      "allowedModels": [
+        "copilot/claude-sonnet-4"
+      ]
+    },
+    "new_pwa_c/.vscode/mcp.json: chrome-devtools": {
+      "allowedModels": [
+        "copilot/claude-sonnet-4.5"
+      ]
+    },
+    "network monitor/.vscode/mcp.json: github": {
+      "allowedModels": [
+        "copilot/oswe-vscode-secondary"
+      ]
+    }
+  },
+  "deno.enablePaths": [
+    "supabase/functions"
+  ],
+  "deno.lint": true,
+  "deno.unstable": [
+    "bare-node-builtins",
+    "byonm",
+    "sloppy-imports",
+    "unsafe-proto",
+    "webgpu",
+    "broadcast-channel",
+    "worker-options",
+    "cron",
+    "kv",
+    "ffi",
+    "fs",
+    "http",
+    "net"
+  ],
+  "github.copilot.chat.agent.thinkingTool": true,
+  "github.copilot.chat.enableWebSearch": true,
+  "liveServer.settings.multiRootWorkspaceName": "new_pwa_c",
+  "githubPullRequests.ignoredPullRequestBranches": [
+    "main"
+  ]
+}
