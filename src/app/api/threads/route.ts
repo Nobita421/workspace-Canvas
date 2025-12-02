@@ -184,8 +184,17 @@ export async function PATCH(request: NextRequest) {
             );
         }
 
-        // Handle 'default' playgroundId in updates
-        const updatesData = { ...updates };
+        // Handle 'default' playgroundId in updates and remove fields that shouldn't be updated
+        const { id: _id, created_at: _createdAt, author_id: _authorId, ...cleanUpdates } = updates;
+        
+        // Filter out undefined values to prevent unintended null updates
+        const updatesData: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(cleanUpdates)) {
+            if (value !== undefined) {
+                updatesData[key] = value;
+            }
+        }
+        
         if (updatesData.canvas_id === 'default') {
             updatesData.canvas_id = null;
         }
