@@ -79,6 +79,30 @@ export default function Canvas() {
     const windowSize = useWindowSize();
 
     const canvasRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    // Attach wheel event with { passive: false } to allow preventDefault for zoom
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const wheelHandler = (e: WheelEvent) => {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const zoomSensitivity = 0.001;
+                const delta = -e.deltaY * zoomSensitivity;
+                setViewState(prev => {
+                    const newZoom = Math.min(Math.max(0.1, prev.zoom + delta), 4);
+                    return { ...prev, zoom: newZoom };
+                });
+            } else {
+                setViewState(prev => ({ ...prev, x: prev.x - e.deltaX, y: prev.y - e.deltaY }));
+            }
+        };
+
+        container.addEventListener('wheel', wheelHandler, { passive: false });
+        return () => container.removeEventListener('wheel', wheelHandler);
+    }, []);
 
     // Computed: Visible threads for current playground
     const visibleThreads = useMemo(() => {
@@ -108,7 +132,6 @@ export default function Canvas() {
         handleCardDrag,
         handleResize,
         handleDragEnd,
-        handleWheel,
         navigateToThread,
     } = useCanvasState({
         snapToGrid,
@@ -457,10 +480,10 @@ export default function Canvas() {
 
     return (
         <div
+            ref={containerRef}
             className={`w-full h-screen overflow-hidden font-sans relative select-none transition-colors duration-500 ${darkMode ? 'bg-slate-950 text-slate-200' : 'bg-slate-50 text-slate-800'}`}
             onMouseMove={handleGlobalMouseMove}
             onMouseUp={handleGlobalMouseUp}
-            onWheel={handleWheel}
             onContextMenu={(e) => e.preventDefault()}
         >
             <style>{`

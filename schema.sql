@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS threads (
     title TEXT,
     content TEXT,
     author_id UUID REFERENCES auth.users(id),
-    sentiment TEXT CHECK (sentiment IN ('bullish', 'bearish', 'neutral')),
+    sentiment TEXT CHECK (sentiment IN ('bullish', 'bearish', 'neutral', 'volatile')),
     locked BOOLEAN DEFAULT FALSE,
     z_index INT DEFAULT 0,
     color TEXT,

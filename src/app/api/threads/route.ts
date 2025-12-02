@@ -119,6 +119,13 @@ export async function POST(request: NextRequest) {
         }
         // Remove playgroundId from thread object if it exists to avoid schema error
         delete threadData.playgroundId;
+        
+        // Validate sentiment value against database constraints
+        // DB only allows: 'bullish', 'bearish', 'neutral'
+        const validSentiments = ['bullish', 'bearish', 'neutral'];
+        if (threadData.sentiment && !validSentiments.includes(threadData.sentiment)) {
+            threadData.sentiment = 'neutral';
+        }
 
         // Insert into Supabase
         const authHeader = request.headers.get('Authorization');
@@ -197,6 +204,14 @@ export async function PATCH(request: NextRequest) {
         
         if (updatesData.canvas_id === 'default') {
             updatesData.canvas_id = null;
+        }
+        
+        // Validate sentiment value against database constraints
+        // DB only allows: 'bullish', 'bearish', 'neutral'
+        const validSentiments = ['bullish', 'bearish', 'neutral'];
+        if (updatesData.sentiment && !validSentiments.includes(updatesData.sentiment as string)) {
+            // Map 'volatile' to 'neutral' or remove invalid sentiments
+            updatesData.sentiment = 'neutral';
         }
 
         // Update in Supabase
