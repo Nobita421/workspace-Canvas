@@ -32,7 +32,7 @@ interface CardProps {
     toggleSelection: (id: string) => void;
     darkMode: boolean;
     onQuickSpawn: (id: string, direction: 'top' | 'bottom' | 'left' | 'right') => void;
-    onShare: (id: string) => void;
+    onShare: (id: string) => void | Promise<void>;
     creatorName?: string;
     onReact: (id: string, emoji: string) => void;
 }
@@ -54,7 +54,7 @@ export const Card: React.FC<CardProps> = ({
 
     const sentimentKey = data.sentiment || 'neutral';
     // Validate sentiment key to prevent object injection
-    const validSentimentKey = ['bullish', 'bearish', 'neutral', 'volatile'].includes(sentimentKey) 
+    const validSentimentKey = (sentimentKey in SENTIMENTS) 
         ? sentimentKey 
         : 'neutral';
     const sentiment = SENTIMENTS[validSentimentKey as keyof typeof SENTIMENTS];
@@ -74,6 +74,17 @@ export const Card: React.FC<CardProps> = ({
 
     const handleReaction = (emoji: string) => {
         onReact(data.id, emoji);
+    };
+
+    const getTopReaction = () => {
+        const reactions = data.reactions || {};
+        if (Object.keys(reactions).length === 0) return null;
+        
+        const entries = Object.entries(reactions);
+        const topReaction = entries.sort((a, b) => (b[1] as number) - (a[1] as number))[0];
+        const totalCount = Object.values(reactions).reduce((a, b) => (a as number) + (b as number), 0);
+        
+        return { emoji: topReaction[0], count: totalCount };
     };
 
     const handleAddComment = (e: React.FormEvent) => {
@@ -144,7 +155,7 @@ export const Card: React.FC<CardProps> = ({
                     </div>
 
                     <div className="flex gap-1 items-center">
-                        <button onClick={(e) => { e.stopPropagation(); onShare(data.id); }} className={`p-1.5 hover:bg-white/20 rounded transition-colors ${darkMode ? 'text-slate-400' : 'text-slate-500'}`} title="Share Link"><Share2 size={14} /></button>
+                        <button onClick={(e) => { e.stopPropagation(); void onShare(data.id); }} className={`p-1.5 hover:bg-white/20 rounded transition-colors ${darkMode ? 'text-slate-400' : 'text-slate-500'}`} title="Share Link"><Share2 size={14} /></button>
                         <button onClick={(e) => { e.stopPropagation(); updateThread(data.id, { locked: !data.locked }); }} className={`p-1.5 rounded transition-colors ${data.locked ? 'text-indigo-500' : 'text-slate-400 opacity-0 group-hover:opacity-100'}`}>{data.locked ? <Lock size={12} /> : <Unlock size={12} />}</button>
                         {!data.locked && (
                             <>
@@ -235,11 +246,14 @@ export const Card: React.FC<CardProps> = ({
                         <button onClick={() => { handleReaction('📉'); }} className="text-xs hover:scale-125 transition-transform" title="Short it">📉</button>
                         <button onClick={() => { handleReaction('💎'); }} className="text-xs hover:scale-125 transition-transform" title="Diamond Hands">💎</button>
                     </div>
-                    {(Object.keys(data.reactions || {}).length > 0) && (
-                        <div className="text-[10px] text-slate-500 font-bold ml-1">
-                            {Object.entries(data.reactions || {}).sort((a, b) => (b[1] as number) - (a[1] as number))[0][0]} {Object.values(data.reactions || {}).reduce((a, b) => (a as number) + (b as number), 0)}
-                        </div>
-                    )}
+                    {(Object.keys(data.reactions || {}).length > 0) && (() => {
+                        const topReaction = getTopReaction();
+                        return topReaction ? (
+                            <div className="text-[10px] text-slate-500 font-bold ml-1">
+                                {topReaction.emoji} {topReaction.count}
+                            </div>
+                        ) : null;
+                    })()}
                 </div>
                 <div className="flex items-center gap-2">
                     {creatorName && <span className="text-[9px] text-slate-400 font-medium px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/5">{creatorName}</span>}

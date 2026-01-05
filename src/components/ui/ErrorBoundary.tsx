@@ -144,7 +144,15 @@ export function ErrorBoundaryWrapper({
     fallback?: ReactNode;
     onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }) {
-    const router = useRouter();
+    let router: { push: (path: string) => void } | undefined;
+    try {
+        // Try to get router, but don't fail if not available
+        router = useRouter();
+    } catch {
+        // Router context not available, ErrorBoundary will fallback to window.location
+        router = undefined;
+    }
+    
     return (
         <ErrorBoundary fallback={fallback} onError={onError} router={router}>
             {children}

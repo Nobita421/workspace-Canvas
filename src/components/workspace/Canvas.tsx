@@ -299,14 +299,15 @@ export default function Canvas() {
         });
     };
 
-    const handleShare = (cardId: string) => {
+    const handleShare = async (cardId: string) => {
         const mockUrl = `https://financeflow.app/t/${cardId}`;
-        void navigator.clipboard.writeText(mockUrl).then(() => {
+        try {
+            await navigator.clipboard.writeText(mockUrl);
             showSuccess("Link copied to clipboard!");
-        }).catch((e) => { 
+        } catch (e) { 
             console.error("Copy failed", e);
             showError("Failed to copy link");
-        });
+        }
     };
 
     const createEntity = async (type: 'card' | 'zone', x?: number, y?: number) => {
