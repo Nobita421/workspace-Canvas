@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 
 interface TickerWidgetProps {
     symbol: string;
+    sentiment?: 'bullish' | 'bearish' | 'neutral' | 'volatile';
     darkMode: boolean;
 }
 
-export const TickerWidget: React.FC<TickerWidgetProps> = ({ symbol, darkMode }) => {
+export const TickerWidget: React.FC<TickerWidgetProps> = ({ symbol, sentiment, darkMode }) => {
     const [price, setPrice] = useState(() => 100 + Math.random() * 2000);
     const [history, setHistory] = useState(() => Array(20).fill(0).map((_, i) => 100 + i));
     const [change, setChange] = useState(0);
@@ -43,11 +44,40 @@ export const TickerWidget: React.FC<TickerWidgetProps> = ({ symbol, darkMode }) 
         return `${x},${y}`;
     }).join(' ');
 
-    const colorClass = change >= 0 ? 'text-emerald-500' : 'text-rose-500';
-    const strokeColor = change >= 0 ? '#10b981' : '#f43f5e';
+    // Use sentiment to determine colors if provided, otherwise fall back to change direction
+    const getSentimentColors = () => {
+        if (sentiment === 'bullish') {
+            return {
+                colorClass: 'text-emerald-500',
+                strokeColor: '#10b981',
+                bgClass: darkMode ? 'bg-emerald-500/10' : 'bg-emerald-50'
+            };
+        } else if (sentiment === 'bearish') {
+            return {
+                colorClass: 'text-rose-500',
+                strokeColor: '#f43f5e',
+                bgClass: darkMode ? 'bg-rose-500/10' : 'bg-rose-50'
+            };
+        } else if (sentiment === 'volatile') {
+            return {
+                colorClass: 'text-amber-500',
+                strokeColor: '#f59e0b',
+                bgClass: darkMode ? 'bg-amber-500/10' : 'bg-amber-50'
+            };
+        } else {
+            // Default: use change direction
+            return {
+                colorClass: change >= 0 ? 'text-emerald-500' : 'text-rose-500',
+                strokeColor: change >= 0 ? '#10b981' : '#f43f5e',
+                bgClass: ''
+            };
+        }
+    };
+
+    const { colorClass, strokeColor, bgClass } = getSentimentColors();
 
     return (
-        <div className={`rounded-lg p-2 mb-2 flex items-center justify-between border ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white/50 border-slate-200'}`}>
+        <div className={`rounded-lg p-2 mb-2 flex items-center justify-between border ${bgClass} ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white/50 border-slate-200'}`}>
             <div>
                 <div className={`text-[10px] font-bold uppercase tracking-wider ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>{symbol}</div>
                 <div className={`text-sm font-mono font-bold ${darkMode ? 'text-slate-200' : 'text-slate-800'}`}>${price.toFixed(2)}</div>

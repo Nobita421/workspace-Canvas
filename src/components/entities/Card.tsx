@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { Thread } from '@/lib/types';
+import { User } from '@supabase/supabase-js';
 import { SENTIMENTS } from '@/lib/constants';
 import { TickerWidget } from './TickerWidget';
 import {
@@ -23,6 +24,7 @@ interface CardProps {
     isDragging: boolean;
     isSelected: boolean;
     updateThread: (id: string, data: Partial<Thread>) => void;
+    user: User | null;
     connectMode: boolean;
     setConnectMode: (id: string) => void;
     addComment: (threadId: string, comment: { text: string }) => void;
@@ -36,7 +38,7 @@ interface CardProps {
 }
 
 export const Card: React.FC<CardProps> = ({
-    data, onDragStart, isDragging, isSelected, updateThread, setConnectMode, connectMode, addComment, isDimmed, toggleSelection, darkMode, onQuickSpawn, onShare, creatorName, onReact
+    data, onDragStart, isDragging, isSelected, updateThread, user, setConnectMode, connectMode, addComment, isDimmed, toggleSelection, darkMode, onQuickSpawn, onShare, creatorName, onReact
 }) => {
     const [localTitle, setLocalTitle] = useState(data.title || '');
     const [localContent, setLocalContent] = useState(data.content || '');
@@ -55,6 +57,9 @@ export const Card: React.FC<CardProps> = ({
     const theme = darkMode ? sentiment.dark : sentiment.light;
     const SentimentIcon = sentiment.icon;
     const titleInputRef = useRef<HTMLInputElement>(null);
+    
+    // Check if the current user is the owner of this card
+    const isOwner = user && data.author === user.id;
 
     useEffect(() => {
         if (data.isNewSpawn && titleInputRef.current) {
@@ -122,10 +127,17 @@ export const Card: React.FC<CardProps> = ({
             {/* Header */}
             <div className="p-3 pb-1">
                 <div className="flex justify-between items-center mb-2">
-                    <button onClick={!data.locked ? cycleSentiment : undefined} className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors border border-transparent cursor-pointer shadow-sm ${darkMode ? 'bg-slate-800/50 hover:bg-slate-800' : 'bg-white/60 hover:bg-white/90'}`}>
-                        <SentimentIcon size={12} className={theme.text} />
-                        <span className={`text-[10px] font-bold uppercase tracking-wide ${theme.text}`}>{sentiment.label}</span>
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                        <button onClick={!data.locked ? cycleSentiment : undefined} className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors border border-transparent cursor-pointer shadow-sm ${darkMode ? 'bg-slate-800/50 hover:bg-slate-800' : 'bg-white/60 hover:bg-white/90'}`}>
+                            <SentimentIcon size={12} className={theme.text} />
+                            <span className={`text-[10px] font-bold uppercase tracking-wide ${theme.text}`}>{sentiment.label}</span>
+                        </button>
+                        {isOwner && (
+                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${darkMode ? 'bg-indigo-500/20 text-indigo-400' : 'bg-indigo-100 text-indigo-600'}`} title="You own this card">
+                                YOU
+                            </span>
+                        )}
+                    </div>
 
                     <div className="flex gap-1 items-center">
                         <button onClick={(e) => { e.stopPropagation(); onShare(data.id); }} className={`p-1.5 hover:bg-white/20 rounded transition-colors ${darkMode ? 'text-slate-400' : 'text-slate-500'}`} title="Share Link"><Share2 size={14} /></button>
@@ -153,7 +165,7 @@ export const Card: React.FC<CardProps> = ({
             )}
             {data.ticker && (
                 <div className="px-3 relative group">
-                    <TickerWidget symbol={data.ticker} darkMode={darkMode} />
+                    <TickerWidget symbol={data.ticker} sentiment={data.sentiment} darkMode={darkMode} />
                     {!data.locked && <button onClick={() => updateThread(data.id, { ticker: null })} className="absolute top-1 right-4 bg-black/50 text-white p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><X size={10} /></button>}
                 </div>
             )}
