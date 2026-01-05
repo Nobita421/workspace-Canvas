@@ -49,7 +49,7 @@ export const CanvasUserMenu: React.FC<CanvasUserMenuProps> = ({
             {user ? (
                 <>
                     <button
-                        onClick={() => setFocusMode(!focusMode)}
+                        onClick={() => { setFocusMode(!focusMode); }}
                         className={`p-2 rounded-full shadow-lg border transition-all hover:scale-105 ${focusMode ? 'bg-indigo-500 text-white border-indigo-600 ring-2 ring-indigo-300' : darkMode ? 'bg-slate-800 border-slate-700 text-slate-400' : 'bg-white border-slate-200 text-slate-400'}`}
                         title="Toggle Focus Mode (Show only my posts)"
                     >
@@ -57,7 +57,7 @@ export const CanvasUserMenu: React.FC<CanvasUserMenuProps> = ({
                     </button>
 
                     <button
-                        onClick={() => setShowNotifications(!showNotifications)}
+                        onClick={() => { setShowNotifications(!showNotifications); }}
                         className={`relative p-2 rounded-full shadow-lg border transition-all hover:scale-105 ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700' : 'bg-white border-slate-100 text-slate-800 hover:bg-slate-50'}`}
                     >
                         <Bell size={18} />
@@ -65,7 +65,7 @@ export const CanvasUserMenu: React.FC<CanvasUserMenuProps> = ({
                     </button>
 
                     <button
-                        onClick={() => setShowProfile(true)}
+                        onClick={() => { setShowProfile(true); }}
                         className={`flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full shadow-lg border transition-all hover:scale-105 active:scale-95 ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700' : 'bg-white border-slate-100 text-slate-800 hover:bg-slate-50'}`}
                     >
                         <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[10px] font-bold">
@@ -75,7 +75,7 @@ export const CanvasUserMenu: React.FC<CanvasUserMenuProps> = ({
                     </button>
 
                     <button
-                        onClick={() => signOut()}
+                        onClick={() => void signOut()}
                         className={`p-2 rounded-full shadow-lg border transition-all hover:scale-105 ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-500/50' : 'bg-white border-slate-200 text-slate-400 hover:text-rose-500 hover:border-rose-200'}`}
                         title="Sign Out"
                     >
@@ -98,7 +98,7 @@ export const CanvasUserMenu: React.FC<CanvasUserMenuProps> = ({
                 </>
             ) : (
                 <button
-                    onClick={() => setShowAuthModal(true)}
+                    onClick={() => { setShowAuthModal(true); }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-full shadow-lg border transition-all hover:scale-105 active:scale-95 bg-indigo-500 hover:bg-indigo-600 border-indigo-600 text-white font-medium`}
                 >
                     <TrendingUp size={16} />

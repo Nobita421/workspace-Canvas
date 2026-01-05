@@ -56,14 +56,14 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2 overflow-hidden">
                         <button
-                            onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                            onClick={() => { setIsHistoryOpen(!isHistoryOpen); }}
                             className={`p-1.5 rounded hover:bg-black/5 dark:hover:bg-white/5 transition-colors ${isHistoryOpen ? 'bg-black/10 dark:bg-white/10' : ''}`}
                         >
                             {isHistoryOpen ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
                         </button>
 
                         <div className="p-1.5 bg-indigo-500 rounded-lg text-white shrink-0"><TrendingUp size={16} /></div>
-                        <button onClick={() => setIsPlaygroundMenuOpen(true)} className="flex flex-col items-start hover:bg-black/5 dark:hover:bg-white/5 px-2 py-1 rounded transition-colors">
+                        <button onClick={() => { setIsPlaygroundMenuOpen(true); }} className="flex flex-col items-start hover:bg-black/5 dark:hover:bg-white/5 px-2 py-1 rounded transition-colors">
                             <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-teal-500 bg-clip-text text-transparent truncate max-w-[120px]">
                                 {currentPlaygroundName}
                             </h1>
@@ -73,8 +73,8 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
                         </button>
                     </div>
                     <div className="flex gap-1 shrink-0">
-                        <button onClick={() => setDarkMode(!darkMode)} className={`p-1.5 rounded transition-colors ${darkMode ? 'text-indigo-400 bg-slate-800' : 'text-slate-400 hover:text-slate-600'}`}>{darkMode ? <Moon size={16} /> : <Sun size={16} />}</button>
-                        <button onClick={() => setSnapToGrid(!snapToGrid)} className={`p-1.5 rounded transition-colors ${snapToGrid ? 'bg-indigo-100 text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`} title="Snap to Grid"><GridIcon size={16} /></button>
+                        <button onClick={() => { setDarkMode(!darkMode); }} className={`p-1.5 rounded transition-colors ${darkMode ? 'text-indigo-400 bg-slate-800' : 'text-slate-400 hover:text-slate-600'}`}>{darkMode ? <Moon size={16} /> : <Sun size={16} />}</button>
+                        <button onClick={() => { setSnapToGrid(!snapToGrid); }} className={`p-1.5 rounded transition-colors ${snapToGrid ? 'bg-indigo-100 text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`} title="Snap to Grid"><GridIcon size={16} /></button>
                     </div>
                 </div>
 
@@ -96,11 +96,11 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
                 </div>
 
                 <div className="flex gap-2 mb-3">
-                    <button onClick={() => setSentimentFilter(sentimentFilter === 'bullish' ? null : 'bullish')} className={`flex-1 border p-2 rounded-xl text-center transition-all ${sentimentFilter === 'bullish' ? 'bg-emerald-500/20 border-emerald-500 ring-2 ring-emerald-500/20' : darkMode ? 'bg-slate-800 border-slate-700 hover:border-emerald-500/50' : 'bg-white border-slate-100 hover:border-emerald-200'}`}>
+                    <button onClick={() => { setSentimentFilter(sentimentFilter === 'bullish' ? null : 'bullish'); }} className={`flex-1 border p-2 rounded-xl text-center transition-all ${sentimentFilter === 'bullish' ? 'bg-emerald-500/20 border-emerald-500 ring-2 ring-emerald-500/20' : darkMode ? 'bg-slate-800 border-slate-700 hover:border-emerald-500/50' : 'bg-white border-slate-100 hover:border-emerald-200'}`}>
                         <span className="block text-[10px] uppercase text-emerald-500 font-bold mb-0.5">Bullish</span>
                         <span className={`text-lg font-bold ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{visibleThreads.filter(t => t.sentiment === 'bullish').length}</span>
                     </button>
-                    <button onClick={() => setSentimentFilter(sentimentFilter === 'bearish' ? null : 'bearish')} className={`flex-1 border p-2 rounded-xl text-center transition-all ${sentimentFilter === 'bearish' ? 'bg-rose-500/20 border-rose-500 ring-2 ring-rose-500/20' : darkMode ? 'bg-slate-800 border-slate-700 hover:border-rose-500/50' : 'bg-white border-slate-100 hover:border-rose-200'}`}>
+                    <button onClick={() => { setSentimentFilter(sentimentFilter === 'bearish' ? null : 'bearish'); }} className={`flex-1 border p-2 rounded-xl text-center transition-all ${sentimentFilter === 'bearish' ? 'bg-rose-500/20 border-rose-500 ring-2 ring-rose-500/20' : darkMode ? 'bg-slate-800 border-slate-700 hover:border-rose-500/50' : 'bg-white border-slate-100 hover:border-rose-200'}`}>
                         <span className="block text-[10px] uppercase text-rose-500 font-bold mb-0.5">Bearish</span>
                         <span className={`text-lg font-bold ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{visibleThreads.filter(t => t.sentiment === 'bearish').length}</span>
                     </button>
@@ -114,7 +114,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
             </div>
 
             {connectSourceId && (
-                <div className="bg-indigo-600 text-white px-4 py-3 rounded-xl shadow-lg shadow-indigo-500/20 text-xs font-medium animate-bounce pointer-events-auto cursor-pointer flex items-center justify-between gap-3" onClick={() => setConnectSourceId(null)}>
+                <div className="bg-indigo-600 text-white px-4 py-3 rounded-xl shadow-lg shadow-indigo-500/20 text-xs font-medium animate-bounce pointer-events-auto cursor-pointer flex items-center justify-between gap-3" onClick={() => { setConnectSourceId(null); }}>
                     <span className="flex items-center gap-2"><LinkIcon size={12} /> Link to...</span>
                     <span className="opacity-50 text-[10px]">Cancel</span>
                 </div>

@@ -153,7 +153,7 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
                 {/* Back button for forgot password */}
                 {mode === 'forgot-password' && (
                     <button
-                        onClick={() => switchMode('login')}
+                        onClick={() => { switchMode('login'); }}
                         className={`flex items-center gap-1 text-sm mb-4 ${mutedClass} hover:text-indigo-500 transition-colors`}
                     >
                         <ArrowLeft size={14} />
@@ -254,7 +254,7 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
                         <div className="flex justify-end">
                             <button
                                 type="button"
-                                onClick={() => switchMode('forgot-password')}
+                                onClick={() => { switchMode('forgot-password'); }}
                                 className={`text-sm ${mutedClass} hover:text-indigo-500 transition-colors`}
                             >
                                 Forgot password?
@@ -323,7 +323,7 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
                             Don&apos;t have an account?{' '}
                             <button
                                 type="button"
-                                onClick={() => switchMode('signup')}
+                                onClick={() => { switchMode('signup'); }}
                                 className="text-indigo-500 hover:text-indigo-600 font-medium"
                             >
                                 Sign up
@@ -334,7 +334,7 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
                             Already have an account?{' '}
                             <button
                                 type="button"
-                                onClick={() => switchMode('login')}
+                                onClick={() => { switchMode('login'); }}
                                 className="text-indigo-500 hover:text-indigo-600 font-medium"
                             >
                                 Sign in

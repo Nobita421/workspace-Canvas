@@ -45,7 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ historyIds, threads, darkMode,
                         return (
                             <div
                                 key={i}
-                                onClick={() => onNavigate(item)}
+                                onClick={() => { onNavigate(item); }}
                                 className={`group p-2.5 rounded-lg cursor-pointer flex items-center justify-between transition-all ${darkMode ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}
                             >
                                 <div className="flex items-center gap-3 overflow-hidden">

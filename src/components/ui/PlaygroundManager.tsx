@@ -77,7 +77,7 @@ export const PlaygroundManager: React.FC<PlaygroundManagerProps> = ({ playground
                     </div>
                 ) : (
                     <button
-                        onClick={() => setIsCreating(true)}
+                        onClick={() => { setIsCreating(true); }}
                         className={`w-full py-3 border-2 border-dashed rounded-xl flex items-center justify-center gap-2 font-medium transition-colors ${darkMode ? 'border-slate-700 hover:border-slate-500 text-slate-400' : 'border-slate-200 hover:border-slate-400 text-slate-500'}`}
                     >
                         <FolderPlus size={18} /> Create New Playground
