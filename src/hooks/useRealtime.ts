@@ -34,8 +34,8 @@ export function useRealtime(playgroundId: string, user: User | null, userName: s
     const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
     const channelRef = useRef<RealtimeChannel | null>(null);
 
-    // Assign a random color to the current user
-    const myColor = useRef(CURSOR_COLORS[Math.floor(Math.random() * CURSOR_COLORS.length)]);
+    // Assign a random color to the current user - use useState to avoid re-generating on every render
+    const [myColor] = useState(() => CURSOR_COLORS[Math.floor(Math.random() * CURSOR_COLORS.length)]);
 
     useEffect(() => {
         if (!user || !playgroundId) return;
@@ -72,7 +72,7 @@ export function useRealtime(playgroundId: string, user: User | null, userName: s
                     await channel.track({
                         id: user.id,
                         name: userName,
-                        color: myColor.current,
+                        color: myColor,
                         online_at: new Date().toISOString(),
                     });
                 }
@@ -81,7 +81,7 @@ export function useRealtime(playgroundId: string, user: User | null, userName: s
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [playgroundId, user, userName]);
+    }, [playgroundId, user, userName, myColor]);
 
     const broadcastCursor = useMemo(() => throttle((x: number, y: number) => {
         if (!channelRef.current || !user) return;
@@ -92,12 +92,12 @@ export function useRealtime(playgroundId: string, user: User | null, userName: s
             payload: {
                 userId: user.id,
                 userName: userName,
-                color: myColor.current,
+                color: myColor,
                 x,
                 y
             }
         });
-    }, 50), [user, userName]);
+    }, 50), [user, userName, myColor]);
 
     return { cursors, onlineUsers, broadcastCursor };
 }

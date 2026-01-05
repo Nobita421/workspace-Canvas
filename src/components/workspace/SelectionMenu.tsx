@@ -1,11 +1,12 @@
 import React from 'react';
 import { LayoutGrid, AlignStartVertical, AlignStartHorizontal, Lock, Unlock } from 'lucide-react';
 import { SENTIMENTS } from '@/lib/constants';
+import { Thread } from '@/lib/types';
 
 interface SelectionMenuProps {
     selectedIds: Set<string>;
     handleAutoLayout: () => void;
-    updateSelectedThreads: (data: any) => void;
+    updateSelectedThreads: (data: Partial<Thread>) => void;
     alignSelection: (mode: 'horizontal' | 'vertical') => void;
     darkMode: boolean;
 }

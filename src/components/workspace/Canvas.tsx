@@ -55,7 +55,11 @@ export default function Canvas() {
     const [connectSourceId, setConnectSourceId] = useState<string | null>(null);
 
     // Playground State
-    const [playgrounds, setPlaygrounds] = useState<any[]>([]);
+    interface Playground {
+        id: string;
+        name: string;
+    }
+    const [playgrounds, setPlaygrounds] = useState<Playground[]>([]);
     const [currentPlaygroundId, setCurrentPlaygroundId] = useState('default');
     const [isPlaygroundMenuOpen, setIsPlaygroundMenuOpen] = useState(false);
 
@@ -81,29 +85,6 @@ export default function Canvas() {
     const canvasRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Attach wheel event with { passive: false } to allow preventDefault for zoom
-    useEffect(() => {
-        const container = containerRef.current;
-        if (!container) return;
-
-        const wheelHandler = (e: WheelEvent) => {
-            if (e.ctrlKey || e.metaKey) {
-                e.preventDefault();
-                const zoomSensitivity = 0.001;
-                const delta = -e.deltaY * zoomSensitivity;
-                setViewState(prev => {
-                    const newZoom = Math.min(Math.max(0.1, prev.zoom + delta), 4);
-                    return { ...prev, zoom: newZoom };
-                });
-            } else {
-                setViewState(prev => ({ ...prev, x: prev.x - e.deltaX, y: prev.y - e.deltaY }));
-            }
-        };
-
-        container.addEventListener('wheel', wheelHandler, { passive: false });
-        return () => container.removeEventListener('wheel', wheelHandler);
-    }, []);
-
     // Computed: Visible threads for current playground
     const visibleThreads = useMemo(() => {
         return threads.filter(t => {
@@ -121,7 +102,6 @@ export default function Canvas() {
         isDraggingCanvas,
         setIsDraggingCanvas,
         activeCardId,
-        dragOffset,
         setDragOffset,
         localPositions,
         resizeId,
@@ -173,6 +153,29 @@ export default function Canvas() {
     // Realtime Hook
     const { cursors, onlineUsers, broadcastCursor } = useRealtime(currentPlaygroundId, user, userName);
 
+    // Attach wheel event with { passive: false } to allow preventDefault for zoom
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const wheelHandler = (e: WheelEvent) => {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const zoomSensitivity = 0.001;
+                const delta = -e.deltaY * zoomSensitivity;
+                setViewState(prev => {
+                    const newZoom = Math.min(Math.max(0.1, prev.zoom + delta), 4);
+                    return { ...prev, zoom: newZoom };
+                });
+            } else {
+                setViewState(prev => ({ ...prev, x: prev.x - e.deltaX, y: prev.y - e.deltaY }));
+            }
+        };
+
+        container.addEventListener('wheel', wheelHandler, { passive: false });
+        return () => container.removeEventListener('wheel', wheelHandler);
+    }, [setViewState]);
+
     // Load saved username when user changes
     useEffect(() => {
         if (user) {
@@ -211,10 +214,15 @@ export default function Canvas() {
     };
 
     // Notifications
+    interface Notification {
+        type: string;
+        message: string;
+        time: string;
+    }
     const notifications = useMemo(() => {
         if (!user) return [];
         const myThreads = threads.filter(t => t.author === user.id);
-        const notifs: any[] = [];
+        const notifs: Notification[] = [];
 
         myThreads.forEach(t => {
             if (t.comments && t.comments.length > 0) {
@@ -421,7 +429,7 @@ export default function Canvas() {
     // Rendered threads with local positions applied
     const renderThreads = useMemo(() => {
         return visibleThreads.map(t => {
-            let merged = { ...t };
+            const merged = { ...t };
             if (localPositions[t.id]) {
                 if (snapToGrid && activeCardId) {
                     merged.x = Math.round(localPositions[t.id].x / GRID_SIZE) * GRID_SIZE;
