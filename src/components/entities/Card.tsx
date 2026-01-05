@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Thread } from '@/lib/types';
+import { User } from '@supabase/supabase-js';
 import { SENTIMENTS } from '@/lib/constants';
 import { TickerWidget } from './TickerWidget';
 import {
@@ -22,10 +23,10 @@ interface CardProps {
     isDragging: boolean;
     isSelected: boolean;
     updateThread: (id: string, data: Partial<Thread>) => void;
-    user: any; // Replace with User type
+    user: User | null;
     connectMode: boolean;
     setConnectMode: (id: string) => void;
-    addComment: (threadId: string, comment: any) => void;
+    addComment: (threadId: string, comment: { text: string }) => void;
     isDimmed: boolean;
     toggleSelection: (id: string) => void;
     darkMode: boolean;
@@ -70,7 +71,7 @@ export const Card: React.FC<CardProps> = ({
         e.preventDefault();
         if (!newComment.trim()) return;
         if (addComment) {
-            addComment(data.id, { text: newComment, author: user?.uid, createdAt: new Date().toISOString() });
+            addComment(data.id, { text: newComment });
         }
         setNewComment('');
     };

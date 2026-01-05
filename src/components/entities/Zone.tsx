@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Thread } from '@/lib/types';
 import { ZONE_COLORS } from '@/lib/constants';
 import { Lock, Unlock } from 'lucide-react';

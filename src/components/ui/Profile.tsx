@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Thread } from '@/lib/types';
 import { Check, Edit2, X } from 'lucide-react';
+import { User } from '@supabase/supabase-js';
 
 interface ProfileProps {
-    user: any;
+    user: User | null;
     threads: Thread[];
     onClose: () => void;
     darkMode: boolean;
@@ -12,12 +13,20 @@ interface ProfileProps {
     saveProfile: (name: string) => void;
 }
 
-export const Profile: React.FC<ProfileProps> = ({ user, threads, onClose, darkMode, userName, setUserName, saveProfile }) => {
-    const userThreads = threads.filter(t => t.author === user.uid);
+export const Profile: React.FC<ProfileProps> = ({ user, threads, onClose, darkMode, userName, saveProfile }) => {
+    if (!user) return null;
+    
+    const userThreads = threads.filter(t => t.author === user.id);
     const bullishCount = userThreads.filter(t => t.sentiment === 'bullish').length;
     const bearishCount = userThreads.filter(t => t.sentiment === 'bearish').length;
     const [isEditing, setIsEditing] = useState(false);
     const [tempName, setTempName] = useState(userName);
+
+    // Calculate member since date once during initial render
+    const memberSince = useMemo(() => {
+        if (!user.created_at) return new Date().toLocaleDateString();
+        return new Date(user.created_at).toLocaleDateString();
+    }, [user]);
 
     const handleSaveName = () => {
         saveProfile(tempName);
@@ -33,7 +42,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, threads, onClose, darkMo
                 <div className="flex justify-between items-start mb-6">
                     <div className="flex items-center gap-3">
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold ${darkMode ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-100 text-indigo-600'}`}>
-                            {user.uid.slice(0, 1).toUpperCase()}
+                            {user.id.slice(0, 1).toUpperCase()}
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
@@ -54,7 +63,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, threads, onClose, darkMo
                                     </>
                                 )}
                             </div>
-                            <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>ID: {user.uid.slice(0, 8)}...</p>
+                            <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>ID: {user.id.slice(0, 8)}...</p>
                         </div>
                     </div>
                     <button onClick={onClose} className={`p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors`}><X size={16} /></button>
@@ -83,7 +92,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, threads, onClose, darkMo
                 </div>
 
                 <div className={`text-xs text-center pt-4 border-t ${darkMode ? 'border-slate-700 text-slate-500' : 'border-slate-100 text-slate-400'}`}>
-                    Member since {new Date(user.created_at || Date.now()).toLocaleDateString()}
+                    Member since {memberSince}
                 </div>
             </div>
         </div>

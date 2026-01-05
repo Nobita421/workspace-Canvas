@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { User, RealtimeChannel } from '@supabase/supabase-js';
 import { throttle } from 'lodash';
@@ -83,21 +83,25 @@ export function useRealtime(playgroundId: string, user: User | null, userName: s
         };
     }, [playgroundId, user, userName, myColor]);
 
-    const broadcastCursor = useMemo(() => throttle((x: number, y: number) => {
-        if (!channelRef.current || !user) return;
-
-        channelRef.current.send({
+    // Use useRef to store throttled function to avoid recreating it
+    const throttledSendRef = useRef(throttle((channel: RealtimeChannel, userId: string, userName: string, color: string, x: number, y: number) => {
+        channel.send({
             type: 'broadcast',
             event: 'cursor-move',
             payload: {
-                userId: user.id,
-                userName: userName,
-                color: myColor,
+                userId,
+                userName,
+                color,
                 x,
                 y
             }
         });
-    }, 50), [user, userName, myColor]);
+    }, 50));
+
+    const broadcastCursor = useCallback((x: number, y: number) => {
+        if (!channelRef.current || !user) return;
+        throttledSendRef.current(channelRef.current, user.id, userName, myColor, x, y);
+    }, [user, userName, myColor]);
 
     return { cursors, onlineUsers, broadcastCursor };
 }

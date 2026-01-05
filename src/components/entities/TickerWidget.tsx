@@ -7,11 +7,14 @@ interface TickerWidgetProps {
 }
 
 export const TickerWidget: React.FC<TickerWidgetProps> = ({ symbol, sentiment, darkMode }) => {
-    const [price, setPrice] = useState(100 + Math.random() * 2000);
-    const [history, setHistory] = useState(Array(20).fill(0).map((_, i) => 100 + i));
+    const [price, setPrice] = useState(() => 100 + Math.random() * 2000);
+    const [history, setHistory] = useState(() => Array(20).fill(0).map((_, i) => 100 + i));
     const [change, setChange] = useState(0);
 
-    useEffect(() => { setPrice(Math.random() * 100 + 50); }, [symbol]);
+    useEffect(() => { 
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setPrice(Math.random() * 100 + 50); 
+    }, [symbol]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -28,6 +31,7 @@ export const TickerWidget: React.FC<TickerWidgetProps> = ({ symbol, sentiment, d
     useEffect(() => {
         const start = history[0];
         const current = history[history.length - 1];
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setChange(((current - start) / start) * 100);
     }, [history]);
 

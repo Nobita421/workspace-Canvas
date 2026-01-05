@@ -30,7 +30,7 @@ export const SelectionMenu: React.FC<SelectionMenuProps> = ({
                 {Object.values(SENTIMENTS).map(s => (
                     <button
                         key={s.id}
-                        onClick={() => updateSelectedThreads({ sentiment: s.id })}
+                        onClick={() => updateSelectedThreads({ sentiment: s.id as 'bullish' | 'bearish' | 'neutral' | 'volatile' })}
                         className={`w-4 h-4 rounded-full border border-black/10 hover:scale-110 transition-transform ${s.dark.bg.replace('/30', '')} ${darkMode ? 'bg-opacity-80' : ''}`}
                         title={`Set all to ${s.label}`}
                     />

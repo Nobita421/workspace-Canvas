@@ -35,7 +35,7 @@ import { SelectionMenu } from './SelectionMenu';
 export default function Canvas() {
     // Auth from context
     const { user, loading: authLoading, signOut } = useAuth();
-    const { showSuccess, showError, showWarning } = useToast();
+    const { showSuccess, showError } = useToast();
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [userName, setUserName] = useState('Trader');
     
@@ -181,12 +181,14 @@ export default function Canvas() {
         if (user) {
             const savedName = localStorage.getItem(`user_name_${user.id}`);
             if (savedName) {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setUserName(savedName);
             } else {
                 // Use display name from auth metadata or generate one
                 const displayName = user.user_metadata?.display_name || 
                                    user.email?.split('@')[0] || 
                                    `Trader ${user.id.slice(0, 4)}`;
+                 
                 setUserName(displayName);
             }
         }
@@ -195,6 +197,7 @@ export default function Canvas() {
     // Fetch Playgrounds
     useEffect(() => {
         if (!user) return;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPlaygrounds([{ id: 'default', name: 'Main Playground' }]);
     }, [user]);
 

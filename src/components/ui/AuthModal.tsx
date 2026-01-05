@@ -66,7 +66,7 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
                     setSuccess('Check your email for a password reset link!');
                 }
             }
-        } catch (err) {
+        } catch {
             setError('An unexpected error occurred');
         } finally {
             setLoading(false);
@@ -85,7 +85,7 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
             if (error) {
                 setError(error.message);
             }
-        } catch (err) {
+        } catch {
             setError('An unexpected error occurred');
         } finally {
             setLoading(false);
