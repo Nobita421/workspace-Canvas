@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { Thread } from '@/lib/types';
 import { User } from '@supabase/supabase-js';
 import { SENTIMENTS } from '@/lib/constants';
@@ -49,12 +50,16 @@ export const Card: React.FC<CardProps> = ({
     const [imageUrlInput, setImageUrlInput] = useState('');
     const [showTickerInput, setShowTickerInput] = useState(false);
     const [tickerInput, setTickerInput] = useState('');
+    const [imageError, setImageError] = useState<Record<string, boolean>>({});
 
     const sentimentKey = data.sentiment || 'neutral';
     const sentiment = SENTIMENTS[sentimentKey];
     const theme = darkMode ? sentiment.dark : sentiment.light;
     const SentimentIcon = sentiment.icon;
     const titleInputRef = useRef<HTMLInputElement>(null);
+    
+    // Check if the current user is the owner of this card
+    const isOwner = user && data.author === user.id;
 
     useEffect(() => {
         if (data.isNewSpawn && titleInputRef.current) {
@@ -122,10 +127,17 @@ export const Card: React.FC<CardProps> = ({
             {/* Header */}
             <div className="p-3 pb-1">
                 <div className="flex justify-between items-center mb-2">
-                    <button onClick={!data.locked ? cycleSentiment : undefined} className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors border border-transparent cursor-pointer shadow-sm ${darkMode ? 'bg-slate-800/50 hover:bg-slate-800' : 'bg-white/60 hover:bg-white/90'}`}>
-                        <SentimentIcon size={12} className={theme.text} />
-                        <span className={`text-[10px] font-bold uppercase tracking-wide ${theme.text}`}>{sentiment.label}</span>
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                        <button onClick={!data.locked ? cycleSentiment : undefined} className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors border border-transparent cursor-pointer shadow-sm ${darkMode ? 'bg-slate-800/50 hover:bg-slate-800' : 'bg-white/60 hover:bg-white/90'}`}>
+                            <SentimentIcon size={12} className={theme.text} />
+                            <span className={`text-[10px] font-bold uppercase tracking-wide ${theme.text}`}>{sentiment.label}</span>
+                        </button>
+                        {isOwner && (
+                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${darkMode ? 'bg-indigo-500/20 text-indigo-400' : 'bg-indigo-100 text-indigo-600'}`} title="You own this card">
+                                YOU
+                            </span>
+                        )}
+                    </div>
 
                     <div className="flex gap-1 items-center">
                         <button onClick={(e) => { e.stopPropagation(); onShare(data.id); }} className={`p-1.5 hover:bg-white/20 rounded transition-colors ${darkMode ? 'text-slate-400' : 'text-slate-500'}`} title="Share Link"><Share2 size={14} /></button>
@@ -167,11 +179,17 @@ export const Card: React.FC<CardProps> = ({
                     </div>
                 </form>
             )}
-            {data.imageUrl && (
+            {data.imageUrl && !imageError[data.imageUrl] && (
                 <div className="px-3 pb-2">
-                    <div className="relative group rounded-lg overflow-hidden border border-black/5 bg-white">
-                        <img src={data.imageUrl} alt="Chart" className="w-full h-32 object-cover" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
-                        {!data.locked && <button onClick={() => updateThread(data.id, { imageUrl: null })} className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><X size={10} /></button>}
+                    <div className="relative group rounded-lg overflow-hidden border border-black/5 bg-white h-32">
+                        <Image 
+                            src={data.imageUrl} 
+                            alt="Chart" 
+                            fill 
+                            className="object-cover" 
+                            onError={() => setImageError(prev => ({ ...prev, [data.imageUrl!]: true }))}
+                        />
+                        {!data.locked && <button onClick={() => updateThread(data.id, { imageUrl: null })} className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"><X size={10} /></button>}
                     </div>
                 </div>
             )}

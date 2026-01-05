@@ -44,11 +44,46 @@ export const TickerWidget: React.FC<TickerWidgetProps> = ({ symbol, sentiment, d
         return `${x},${y}`;
     }).join(' ');
 
-    const colorClass = change >= 0 ? 'text-emerald-500' : 'text-rose-500';
-    const strokeColor = change >= 0 ? '#10b981' : '#f43f5e';
+    // Use sentiment to determine colors if provided, otherwise fall back to change direction
+    const getSentimentColors = () => {
+        if (sentiment === 'bullish') {
+            return {
+                colorClass: 'text-emerald-500',
+                strokeColor: '#10b981',
+                bgClasses: darkMode ? 'bg-emerald-500/10 border-emerald-700' : 'bg-emerald-50 border-emerald-200'
+            };
+        } else if (sentiment === 'bearish') {
+            return {
+                colorClass: 'text-rose-500',
+                strokeColor: '#f43f5e',
+                bgClasses: darkMode ? 'bg-rose-500/10 border-rose-700' : 'bg-rose-50 border-rose-200'
+            };
+        } else if (sentiment === 'volatile') {
+            return {
+                colorClass: 'text-amber-500',
+                strokeColor: '#f59e0b',
+                bgClasses: darkMode ? 'bg-amber-500/10 border-amber-700' : 'bg-amber-50 border-amber-200'
+            };
+        } else if (sentiment === 'neutral') {
+            return {
+                colorClass: change >= 0 ? 'text-emerald-500' : 'text-rose-500',
+                strokeColor: change >= 0 ? '#10b981' : '#f43f5e',
+                bgClasses: darkMode ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'
+            };
+        } else {
+            // Default when no sentiment: use change direction and default styling
+            return {
+                colorClass: change >= 0 ? 'text-emerald-500' : 'text-rose-500',
+                strokeColor: change >= 0 ? '#10b981' : '#f43f5e',
+                bgClasses: darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white/50 border-slate-200'
+            };
+        }
+    };
+
+    const { colorClass, strokeColor, bgClasses } = getSentimentColors();
 
     return (
-        <div className={`rounded-lg p-2 mb-2 flex items-center justify-between border ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white/50 border-slate-200'}`}>
+        <div className={`rounded-lg p-2 mb-2 flex items-center justify-between border ${bgClasses}`}>
             <div>
                 <div className={`text-[10px] font-bold uppercase tracking-wider ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>{symbol}</div>
                 <div className={`text-sm font-mono font-bold ${darkMode ? 'text-slate-200' : 'text-slate-800'}`}>${price.toFixed(2)}</div>
