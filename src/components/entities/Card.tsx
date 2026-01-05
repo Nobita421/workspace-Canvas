@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { Thread } from '@/lib/types';
-import { User } from '@supabase/supabase-js';
 import { SENTIMENTS } from '@/lib/constants';
 import { TickerWidget } from './TickerWidget';
 import {
@@ -23,7 +23,6 @@ interface CardProps {
     isDragging: boolean;
     isSelected: boolean;
     updateThread: (id: string, data: Partial<Thread>) => void;
-    user: User | null;
     connectMode: boolean;
     setConnectMode: (id: string) => void;
     addComment: (threadId: string, comment: { text: string }) => void;
@@ -37,7 +36,7 @@ interface CardProps {
 }
 
 export const Card: React.FC<CardProps> = ({
-    data, onDragStart, isDragging, isSelected, updateThread, user, setConnectMode, connectMode, addComment, isDimmed, toggleSelection, darkMode, onQuickSpawn, onShare, creatorName, onReact
+    data, onDragStart, isDragging, isSelected, updateThread, setConnectMode, connectMode, addComment, isDimmed, toggleSelection, darkMode, onQuickSpawn, onShare, creatorName, onReact
 }) => {
     const [localTitle, setLocalTitle] = useState(data.title || '');
     const [localContent, setLocalContent] = useState(data.content || '');
@@ -153,7 +152,7 @@ export const Card: React.FC<CardProps> = ({
             )}
             {data.ticker && (
                 <div className="px-3 relative group">
-                    <TickerWidget symbol={data.ticker} sentiment={data.sentiment} darkMode={darkMode} />
+                    <TickerWidget symbol={data.ticker} darkMode={darkMode} />
                     {!data.locked && <button onClick={() => updateThread(data.id, { ticker: null })} className="absolute top-1 right-4 bg-black/50 text-white p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><X size={10} /></button>}
                 </div>
             )}
@@ -169,9 +168,9 @@ export const Card: React.FC<CardProps> = ({
             )}
             {data.imageUrl && (
                 <div className="px-3 pb-2">
-                    <div className="relative group rounded-lg overflow-hidden border border-black/5 bg-white">
-                        <img src={data.imageUrl} alt="Chart" className="w-full h-32 object-cover" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
-                        {!data.locked && <button onClick={() => updateThread(data.id, { imageUrl: null })} className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><X size={10} /></button>}
+                    <div className="relative group rounded-lg overflow-hidden border border-black/5 bg-white h-32">
+                        <Image src={data.imageUrl} alt="Chart" fill className="object-cover" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
+                        {!data.locked && <button onClick={() => updateThread(data.id, { imageUrl: null })} className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"><X size={10} /></button>}
                     </div>
                 </div>
             )}

@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 
 interface TickerWidgetProps {
     symbol: string;
-    sentiment?: 'bullish' | 'bearish' | 'neutral' | 'volatile';
     darkMode: boolean;
 }
 
-export const TickerWidget: React.FC<TickerWidgetProps> = ({ symbol, sentiment, darkMode }) => {
+export const TickerWidget: React.FC<TickerWidgetProps> = ({ symbol, darkMode }) => {
     const [price, setPrice] = useState(() => 100 + Math.random() * 2000);
     const [history, setHistory] = useState(() => Array(20).fill(0).map((_, i) => 100 + i));
     const [change, setChange] = useState(0);

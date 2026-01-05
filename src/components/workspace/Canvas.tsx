@@ -611,7 +611,6 @@ export default function Canvas() {
                         isSelected={selectedIds.has(thread.id)}
                         toggleSelection={toggleSelection}
                         updateThread={updateThread}
-                        user={user}
                         connectMode={connectSourceId === thread.id}
                         setConnectMode={(id) => handleConnect(id)}
                         addComment={addComment}
