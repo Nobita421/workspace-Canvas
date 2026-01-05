@@ -14,24 +14,25 @@ interface ProfileProps {
 }
 
 export const Profile: React.FC<ProfileProps> = ({ user, threads, onClose, darkMode, userName, saveProfile }) => {
-    if (!user) return null;
-    
-    const userThreads = threads.filter(t => t.author === user.id);
-    const bullishCount = userThreads.filter(t => t.sentiment === 'bullish').length;
-    const bearishCount = userThreads.filter(t => t.sentiment === 'bearish').length;
     const [isEditing, setIsEditing] = useState(false);
     const [tempName, setTempName] = useState(userName);
 
     // Calculate member since date once during initial render
     const memberSince = useMemo(() => {
-        if (!user.created_at) return new Date().toLocaleDateString();
+        if (!user?.created_at) return new Date().toLocaleDateString();
         return new Date(user.created_at).toLocaleDateString();
     }, [user]);
+
+    const userThreads = threads.filter(t => t.author === user?.id);
+    const bullishCount = userThreads.filter(t => t.sentiment === 'bullish').length;
+    const bearishCount = userThreads.filter(t => t.sentiment === 'bearish').length;
 
     const handleSaveName = () => {
         saveProfile(tempName);
         setIsEditing(false);
     };
+
+    if (!user) return null;
 
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm" onClick={onClose}>
