@@ -1,6 +1,5 @@
 import { useEffect, useCallback } from 'react';
 import { User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
 import { Thread } from '@/lib/types';
 import { mapThreadToDB } from '@/lib/utils';
 
@@ -12,7 +11,7 @@ interface UseKeyboardShortcutsProps {
     setThreads: React.Dispatch<React.SetStateAction<Thread[]>>;
     setSelectedIds: React.Dispatch<React.SetStateAction<Set<string>>>;
     setConnectSourceId: React.Dispatch<React.SetStateAction<string | null>>;
-    setContextMenu: React.Dispatch<React.SetStateAction<any>>;
+    setContextMenu: React.Dispatch<React.SetStateAction<{ x: number; y: number; canvasX: number; canvasY: number } | null>>;
     setShowProfile: React.Dispatch<React.SetStateAction<boolean>>;
     setShowNotifications: React.Dispatch<React.SetStateAction<boolean>>;
     setIsHistoryOpen: React.Dispatch<React.SetStateAction<boolean>>;

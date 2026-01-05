@@ -13,7 +13,7 @@ interface UseThreadDataProps {
     showSuccess: (msg: string) => void;
 }
 
-export function useThreadData({ user, userName, currentPlaygroundId, showError, showSuccess }: UseThreadDataProps) {
+export function useThreadData({ user, userName, currentPlaygroundId, showError }: UseThreadDataProps) {
     const { session } = useAuth();
     const [threads, setThreads] = useState<Thread[]>([]);
     const threadsRef = useRef<Thread[]>([]);
@@ -26,7 +26,11 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError, 
     // Fetch Threads
     useEffect(() => {
         const fetchThreads = async () => {
-            let threadsData: any[] = [];
+            interface DBThread {
+                id: string;
+                [key: string]: unknown;
+            }
+            let threadsData: DBThread[] = [];
             try {
                 const headers: HeadersInit = {};
                 if (session?.access_token) {
@@ -43,7 +47,7 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError, 
             }
 
             if (threadsData.length > 0) {
-                const threadIds = threadsData.map((t: any) => t.id);
+                const threadIds = threadsData.map((t) => t.id);
 
                 const [commentsRes, reactionsRes, connectionsRes] = await Promise.all([
                     supabase.from('comments').select('*').in('thread_id', threadIds),
@@ -128,7 +132,7 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError, 
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [currentPlaygroundId, user, showError]);
+    }, [currentPlaygroundId, user, showError, session]);
 
     const pendingUpdates = useRef<Record<string, NodeJS.Timeout>>({});
     const pendingData = useRef<Record<string, Partial<Thread>>>({});
@@ -241,7 +245,7 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError, 
                 showError('Failed to save changes. Please try again.');
             }
         }, 500); // 500ms debounce
-    }, [user, currentPlaygroundId, showError]);
+    }, [user, currentPlaygroundId, showError, session]);
 
     const addComment = async (threadId: string, commentData: { text: string }) => {
         if (!user) return;

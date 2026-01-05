@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
 interface LaserPointerProps {
-    viewState: { x: number; y: number; zoom: number };
+    viewState?: { x: number; y: number; zoom: number };
 }
 
-export const LaserPointer: React.FC<LaserPointerProps> = ({ viewState }) => {
+export const LaserPointer: React.FC<LaserPointerProps> = () => {
     const [trail, setTrail] = useState<{ x: number; y: number; id: number }[]>([]);
     useEffect(() => {
         const handleMove = (e: MouseEvent) => { setTrail(prev => [...prev.slice(-15), { x: e.clientX, y: e.clientY, id: Math.random() }]); };

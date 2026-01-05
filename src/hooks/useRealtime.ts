@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { User, RealtimeChannel } from '@supabase/supabase-js';
 import { throttle } from 'lodash';
@@ -34,8 +34,8 @@ export function useRealtime(playgroundId: string, user: User | null, userName: s
     const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
     const channelRef = useRef<RealtimeChannel | null>(null);
 
-    // Assign a random color to the current user
-    const myColor = useRef(CURSOR_COLORS[Math.floor(Math.random() * CURSOR_COLORS.length)]);
+    // Assign a random color to the current user - use useState to avoid re-generating on every render
+    const [myColor] = useState(() => CURSOR_COLORS[Math.floor(Math.random() * CURSOR_COLORS.length)]);
 
     useEffect(() => {
         if (!user || !playgroundId) return;
@@ -72,7 +72,7 @@ export function useRealtime(playgroundId: string, user: User | null, userName: s
                     await channel.track({
                         id: user.id,
                         name: userName,
-                        color: myColor.current,
+                        color: myColor,
                         online_at: new Date().toISOString(),
                     });
                 }
@@ -81,23 +81,27 @@ export function useRealtime(playgroundId: string, user: User | null, userName: s
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [playgroundId, user, userName]);
+    }, [playgroundId, user, userName, myColor]);
 
-    const broadcastCursor = useMemo(() => throttle((x: number, y: number) => {
-        if (!channelRef.current || !user) return;
-
-        channelRef.current.send({
+    // Use useRef to store throttled function to avoid recreating it
+    const throttledSendRef = useRef(throttle((channel: RealtimeChannel, userId: string, userName: string, color: string, x: number, y: number) => {
+        channel.send({
             type: 'broadcast',
             event: 'cursor-move',
             payload: {
-                userId: user.id,
-                userName: userName,
-                color: myColor.current,
+                userId,
+                userName,
+                color,
                 x,
                 y
             }
         });
-    }, 50), [user, userName]);
+    }, 50));
+
+    const broadcastCursor = useCallback((x: number, y: number) => {
+        if (!channelRef.current || !user) return;
+        throttledSendRef.current(channelRef.current, user.id, userName, myColor, x, y);
+    }, [user, userName, myColor]);
 
     return { cursors, onlineUsers, broadcastCursor };
 }

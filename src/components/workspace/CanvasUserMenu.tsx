@@ -1,17 +1,31 @@
 import React from 'react';
 import { Target, Bell, LogOut, TrendingUp } from 'lucide-react';
+import { User } from '@supabase/supabase-js';
+
+interface OnlineUser {
+    id: string;
+    name: string;
+    color: string;
+    online_at: string;
+}
+
+interface Notification {
+    type: string;
+    message: string;
+    time: string;
+}
 
 interface CanvasUserMenuProps {
-    user: any;
+    user: User | null;
     userName: string;
     focusMode: boolean;
     setFocusMode: (v: boolean) => void;
     showNotifications: boolean;
     setShowNotifications: (v: boolean) => void;
-    notifications: any[];
+    notifications: Notification[];
     setShowProfile: (v: boolean) => void;
     signOut: () => void;
-    onlineUsers: any[];
+    onlineUsers: OnlineUser[];
     setShowAuthModal: (v: boolean) => void;
     darkMode: boolean;
 }

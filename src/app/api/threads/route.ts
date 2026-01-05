@@ -9,8 +9,13 @@ import {
     CACHE_KEYS 
 } from '@/lib/redis';
 
+interface DBThread {
+    id: string;
+    [key: string]: unknown;
+}
+
 interface CachedThreadsData {
-    threads: any[];
+    threads: DBThread[];
     cachedAt: number;
 }
 
@@ -192,6 +197,7 @@ export async function PATCH(request: NextRequest) {
         }
 
         // Handle 'default' playgroundId in updates and remove fields that shouldn't be updated
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id: _id, created_at: _createdAt, author_id: _authorId, ...cleanUpdates } = updates;
         
         // Filter out undefined values to prevent unintended null updates

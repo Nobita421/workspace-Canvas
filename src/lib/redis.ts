@@ -171,12 +171,12 @@ export async function updateCursorPosition(
 /**
  * Get all cursor positions for a playground
  */
-export async function getCursorPositions(playgroundId: string): Promise<Record<string, any>> {
+export async function getCursorPositions(playgroundId: string): Promise<Record<string, { x: number; y: number; userId: string; timestamp: number }>> {
     if (!redis) return {};
     
     try {
         const cursors = await redis.hgetall(CACHE_KEYS.cursors(playgroundId));
-        const parsed: Record<string, any> = {};
+        const parsed: Record<string, { x: number; y: number; userId: string; timestamp: number }> = {};
         
         for (const [userId, data] of Object.entries(cursors)) {
             try {

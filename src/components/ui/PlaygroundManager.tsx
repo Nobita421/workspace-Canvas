@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Briefcase, X, Check, FolderPlus, Folder } from 'lucide-react';
+import { Briefcase, X, Check, FolderPlus } from 'lucide-react';
 
 interface Playground {
     id: string;
