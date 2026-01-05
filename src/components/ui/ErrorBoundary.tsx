@@ -2,7 +2,6 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 interface Props {
     children: ReactNode;
@@ -52,10 +51,11 @@ export class ErrorBoundary extends Component<Props, State> {
     };
 
     handleGoHome = () => {
-        // Use router if available, otherwise fallback to window.location
+        // Use router if available, otherwise use window.location
         if (this.props.router) {
             this.props.router.push('/');
         } else {
+            // Safe navigation without potential XSS
             window.location.assign('/');
         }
     };
@@ -144,17 +144,10 @@ export function ErrorBoundaryWrapper({
     fallback?: ReactNode;
     onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }) {
-    let router: { push: (path: string) => void } | undefined;
-    try {
-        // Try to get router, but don't fail if not available
-        router = useRouter();
-    } catch {
-        // Router context not available, ErrorBoundary will fallback to window.location
-        router = undefined;
-    }
-    
+    // Note: We don't use useRouter here because it violates Rules of Hooks
+    // ErrorBoundary will fallback to window.location.assign() instead
     return (
-        <ErrorBoundary fallback={fallback} onError={onError} router={router}>
+        <ErrorBoundary fallback={fallback} onError={onError}>
             {children}
         </ErrorBoundary>
     );

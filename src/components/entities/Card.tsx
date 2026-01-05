@@ -18,6 +18,17 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Helper function to get top reaction from reactions object
+function getTopReaction(reactions: Record<string, number> | undefined): { emoji: string; count: number } | null {
+    if (!reactions || Object.keys(reactions).length === 0) return null;
+    
+    const entries = Object.entries(reactions);
+    const topReaction = entries.sort((a, b) => (b[1] as number) - (a[1] as number))[0];
+    const totalCount = Object.values(reactions).reduce((a, b) => (a as number) + (b as number), 0);
+    
+    return { emoji: topReaction[0], count: totalCount };
+}
+
 interface CardProps {
     data: Thread;
     onDragStart: (e: React.MouseEvent | React.TouchEvent, id: string) => void;
@@ -54,16 +65,18 @@ export const Card: React.FC<CardProps> = ({
 
     const sentimentKey = data.sentiment || 'neutral';
     // Validate sentiment key to prevent object injection
-    const validSentimentKey = (sentimentKey in SENTIMENTS) 
-        ? sentimentKey 
-        : 'neutral';
-    const sentiment = SENTIMENTS[validSentimentKey as keyof typeof SENTIMENTS];
+    const sentiment = (sentimentKey in SENTIMENTS) 
+        ? SENTIMENTS[sentimentKey as keyof typeof SENTIMENTS]
+        : SENTIMENTS.neutral;
     const theme = darkMode ? sentiment.dark : sentiment.light;
     const SentimentIcon = sentiment.icon;
     const titleInputRef = useRef<HTMLInputElement>(null);
     
     // Check if the current user is the owner of this card
     const isOwner = user && data.author === user.id;
+
+    // Calculate top reaction for display
+    const topReaction = getTopReaction(data.reactions);
 
     useEffect(() => {
         if (data.isNewSpawn && titleInputRef.current) {
@@ -74,17 +87,6 @@ export const Card: React.FC<CardProps> = ({
 
     const handleReaction = (emoji: string) => {
         onReact(data.id, emoji);
-    };
-
-    const getTopReaction = () => {
-        const reactions = data.reactions || {};
-        if (Object.keys(reactions).length === 0) return null;
-        
-        const entries = Object.entries(reactions);
-        const topReaction = entries.sort((a, b) => (b[1] as number) - (a[1] as number))[0];
-        const totalCount = Object.values(reactions).reduce((a, b) => (a as number) + (b as number), 0);
-        
-        return { emoji: topReaction[0], count: totalCount };
     };
 
     const handleAddComment = (e: React.FormEvent) => {
@@ -246,14 +248,11 @@ export const Card: React.FC<CardProps> = ({
                         <button onClick={() => { handleReaction('📉'); }} className="text-xs hover:scale-125 transition-transform" title="Short it">📉</button>
                         <button onClick={() => { handleReaction('💎'); }} className="text-xs hover:scale-125 transition-transform" title="Diamond Hands">💎</button>
                     </div>
-                    {(Object.keys(data.reactions || {}).length > 0) && (() => {
-                        const topReaction = getTopReaction();
-                        return topReaction ? (
-                            <div className="text-[10px] text-slate-500 font-bold ml-1">
-                                {topReaction.emoji} {topReaction.count}
-                            </div>
-                        ) : null;
-                    })()}
+                    {topReaction && (
+                        <div className="text-[10px] text-slate-500 font-bold ml-1">
+                            {topReaction.emoji} {topReaction.count}
+                        </div>
+                    )}
                 </div>
                 <div className="flex items-center gap-2">
                     {creatorName && <span className="text-[9px] text-slate-400 font-medium px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/5">{creatorName}</span>}
