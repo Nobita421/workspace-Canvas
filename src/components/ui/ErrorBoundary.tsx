@@ -2,11 +2,13 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface Props {
     children: ReactNode;
     fallback?: ReactNode;
     onError?: (error: Error, errorInfo: ErrorInfo) => void;
+    router?: { push: (path: string) => void };
 }
 
 interface State {
@@ -50,7 +52,12 @@ export class ErrorBoundary extends Component<Props, State> {
     };
 
     handleGoHome = () => {
-        window.location.href = '/';
+        // Use router if available, otherwise fallback to window.location
+        if (this.props.router) {
+            this.props.router.push('/');
+        } else {
+            window.location.assign('/');
+        }
     };
 
     render() {
@@ -137,8 +144,9 @@ export function ErrorBoundaryWrapper({
     fallback?: ReactNode;
     onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }) {
+    const router = useRouter();
     return (
-        <ErrorBoundary fallback={fallback} onError={onError}>
+        <ErrorBoundary fallback={fallback} onError={onError} router={router}>
             {children}
         </ErrorBoundary>
     );

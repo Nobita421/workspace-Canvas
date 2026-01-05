@@ -55,17 +55,21 @@ export function useRealtime(playgroundId: string, user: User | null, userName: s
                 const newState = channel.presenceState();
                 const users: OnlineUser[] = [];
                 Object.keys(newState).forEach(key => {
-                    newState[key].forEach((presence) => {
-                        users.push(presence as unknown as OnlineUser);
-                    });
+                    if (key in newState) {
+                        newState[key].forEach((presence) => {
+                            users.push(presence as unknown as OnlineUser);
+                        });
+                    }
                 });
                 setOnlineUsers(users);
             })
             .on('broadcast', { event: 'cursor-move' }, ({ payload }) => {
-                setCursors(prev => ({
-                    ...prev,
-                    [payload.userId]: payload
-                }));
+                if (payload?.userId) {
+                    setCursors(prev => ({
+                        ...prev,
+                        [payload.userId]: payload
+                    }));
+                }
             })
             .subscribe(async (status) => {
                 if (status === 'SUBSCRIBED') {

@@ -208,7 +208,7 @@ export async function PATCH(request: NextRequest) {
             }
         }
         
-        if (updatesData.canvas_id === 'default') {
+        if ('canvas_id' in updatesData && updatesData.canvas_id === 'default') {
             updatesData.canvas_id = null;
         }
         

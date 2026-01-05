@@ -26,8 +26,14 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ threads, zoom,
         const t = threads.find(th => th.id === threadId);
         if (t) {
             const newLabels = { ...(t.connectionLabels || {}) };
-            if (editValue === '') delete newLabels[connTargetId];
-            else newLabels[connTargetId] = editValue;
+            if (editValue === '') {
+                // Safely delete property
+                if (connTargetId in newLabels) {
+                    delete newLabels[connTargetId];
+                }
+            } else {
+                newLabels[connTargetId] = editValue;
+            }
             updateThread(threadId, { connectionLabels: newLabels });
         }
         setEditingId(null);
@@ -48,7 +54,7 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ threads, zoom,
                 lines.push({
                     source: t,
                     target: target,
-                    label: t.connectionLabels ? t.connectionLabels[tid] : null
+                    label: (t.connectionLabels && tid in t.connectionLabels) ? t.connectionLabels[tid] : null
                 });
             }
         });

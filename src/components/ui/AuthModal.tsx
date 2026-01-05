@@ -291,7 +291,7 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
                         <div className="grid grid-cols-2 gap-3">
                             <button
                                 type="button"
-                                onClick={() => handleOAuthSignIn('google')}
+                                onClick={() => void handleOAuthSignIn('google')}
                                 disabled={loading}
                                 className={`flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border font-medium transition-all disabled:opacity-50 ${darkMode ? 'border-slate-700 hover:bg-slate-800' : 'border-slate-200 hover:bg-slate-50'} ${textClass}`}
                             >
@@ -305,7 +305,7 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
                             </button>
                             <button
                                 type="button"
-                                onClick={() => handleOAuthSignIn('github')}
+                                onClick={() => void handleOAuthSignIn('github')}
                                 disabled={loading}
                                 className={`flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border font-medium transition-all disabled:opacity-50 ${darkMode ? 'border-slate-700 hover:bg-slate-800' : 'border-slate-200 hover:bg-slate-50'} ${textClass}`}
                             >

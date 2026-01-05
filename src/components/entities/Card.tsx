@@ -53,7 +53,11 @@ export const Card: React.FC<CardProps> = ({
     const [imageError, setImageError] = useState<Record<string, boolean>>({});
 
     const sentimentKey = data.sentiment || 'neutral';
-    const sentiment = SENTIMENTS[sentimentKey];
+    // Validate sentiment key to prevent object injection
+    const validSentimentKey = ['bullish', 'bearish', 'neutral', 'volatile'].includes(sentimentKey) 
+        ? sentimentKey 
+        : 'neutral';
+    const sentiment = SENTIMENTS[validSentimentKey as keyof typeof SENTIMENTS];
     const theme = darkMode ? sentiment.dark : sentiment.light;
     const SentimentIcon = sentiment.icon;
     const titleInputRef = useRef<HTMLInputElement>(null);
@@ -166,7 +170,7 @@ export const Card: React.FC<CardProps> = ({
             {data.ticker && (
                 <div className="px-3 relative group">
                     <TickerWidget symbol={data.ticker} sentiment={data.sentiment} darkMode={darkMode} />
-                    {!data.locked && <button onClick={() => updateThread(data.id, { ticker: null })} className="absolute top-1 right-4 bg-black/50 text-white p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><X size={10} /></button>}
+                    {!data.locked && <button onClick={() => { updateThread(data.id, { ticker: null }); }} className="absolute top-1 right-4 bg-black/50 text-white p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><X size={10} /></button>}
                 </div>
             )}
 
@@ -187,9 +191,13 @@ export const Card: React.FC<CardProps> = ({
                             alt="Chart" 
                             fill 
                             className="object-cover" 
-                            onError={() => setImageError(prev => ({ ...prev, [data.imageUrl!]: true }))}
+                            onError={() => {
+                                if (data.imageUrl) {
+                                    setImageError(prev => ({ ...prev, [data.imageUrl]: true }));
+                                }
+                            }}
                         />
-                        {!data.locked && <button onClick={() => updateThread(data.id, { imageUrl: null })} className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"><X size={10} /></button>}
+                        {!data.locked && <button onClick={() => { updateThread(data.id, { imageUrl: null }); }} className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"><X size={10} /></button>}
                     </div>
                 </div>
             )}
@@ -204,7 +212,7 @@ export const Card: React.FC<CardProps> = ({
                 {data.tags && data.tags.map(tag => (
                     <span key={tag} className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold border ${darkMode ? 'bg-slate-800/50 text-slate-400 border-slate-700' : 'bg-white/50 text-slate-600 border-white/20'}`}>
                         {tag}
-                        {!data.locked && <button onClick={() => updateThread(data.id, { tags: data.tags?.filter(t => t !== tag) })} className="ml-1 hover:text-red-500"><X size={8} /></button>}
+                        {!data.locked && <button onClick={() => { updateThread(data.id, { tags: data.tags?.filter(t => t !== tag) }); }} className="ml-1 hover:text-red-500"><X size={8} /></button>}
                     </span>
                 ))}
                 {!data.locked && (
@@ -213,7 +221,7 @@ export const Card: React.FC<CardProps> = ({
                             <input autoFocus type="text" value={newTag} onChange={(e) => setNewTag(e.target.value)} onBlur={() => setShowTagInput(false)} className={`w-16 text-xs rounded px-1 py-0.5 outline-none ${darkMode ? 'bg-slate-800 text-white' : 'bg-white/70'}`} placeholder="TAG" />
                         </form>
                     ) : (
-                        <button onClick={() => setShowTagInput(true)} className="p-0.5 text-slate-400 hover:text-slate-500"><Plus size={12} /></button>
+                        <button onClick={() => { setShowTagInput(true); }} className="p-0.5 text-slate-400 hover:text-slate-500"><Plus size={12} /></button>
                     )
                 )}
             </div>
@@ -222,12 +230,14 @@ export const Card: React.FC<CardProps> = ({
             <div className={`px-3 py-2 backdrop-blur-sm rounded-b-xl flex justify-between items-center border-t ${darkMode ? 'bg-slate-800/30 border-slate-700/50' : 'bg-white/40 border-white/20'}`}>
                 <div className="flex items-center gap-2 group/footer">
                     <div className={`flex items-center gap-1 rounded-full px-1.5 py-1 transition-colors ${darkMode ? 'bg-slate-800/50 hover:bg-slate-800' : 'bg-white/40 hover:bg-white/80'}`}>
-                        <button onClick={() => handleReaction('🚀')} className="text-xs hover:scale-125 transition-transform" title="To the moon">🚀</button>
-                        <button onClick={() => handleReaction('📉')} className="text-xs hover:scale-125 transition-transform" title="Short it">📉</button>
-                        <button onClick={() => handleReaction('💎')} className="text-xs hover:scale-125 transition-transform" title="Diamond Hands">💎</button>
+                        <button onClick={() => { handleReaction('🚀'); }} className="text-xs hover:scale-125 transition-transform" title="To the moon">🚀</button>
+                        <button onClick={() => { handleReaction('📉'); }} className="text-xs hover:scale-125 transition-transform" title="Short it">📉</button>
+                        <button onClick={() => { handleReaction('💎'); }} className="text-xs hover:scale-125 transition-transform" title="Diamond Hands">💎</button>
                     </div>
                     {(Object.keys(data.reactions || {}).length > 0) && (
-                        <div className="text-[10px] text-slate-500 font-bold ml-1">{Object.entries(data.reactions || {}).sort((a, b) => b[1] - a[1])[0][0]} {Object.values(data.reactions || {}).reduce((a, b) => a + b, 0)}</div>
+                        <div className="text-[10px] text-slate-500 font-bold ml-1">
+                            {Object.entries(data.reactions || {}).sort((a, b) => (b[1] as number) - (a[1] as number))[0][0]} {Object.values(data.reactions || {}).reduce((a, b) => (a as number) + (b as number), 0)}
+                        </div>
                     )}
                 </div>
                 <div className="flex items-center gap-2">
