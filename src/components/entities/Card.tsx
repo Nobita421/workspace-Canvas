@@ -192,8 +192,9 @@ export const Card: React.FC<CardProps> = ({
                             fill 
                             className="object-cover" 
                             onError={() => {
-                                if (data.imageUrl) {
-                                    setImageError(prev => ({ ...prev, [data.imageUrl]: true }));
+                                const imageUrl = data.imageUrl;
+                                if (imageUrl) {
+                                    setImageError(prev => ({ ...prev, [imageUrl]: true }));
                                 }
                             }}
                         />
