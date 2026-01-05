@@ -48,6 +48,7 @@ export const Card: React.FC<CardProps> = ({
     const [imageUrlInput, setImageUrlInput] = useState('');
     const [showTickerInput, setShowTickerInput] = useState(false);
     const [tickerInput, setTickerInput] = useState('');
+    const [imageError, setImageError] = useState<Record<string, boolean>>({});
 
     const sentimentKey = data.sentiment || 'neutral';
     const sentiment = SENTIMENTS[sentimentKey];
@@ -166,10 +167,16 @@ export const Card: React.FC<CardProps> = ({
                     </div>
                 </form>
             )}
-            {data.imageUrl && (
+            {data.imageUrl && !imageError[data.imageUrl] && (
                 <div className="px-3 pb-2">
                     <div className="relative group rounded-lg overflow-hidden border border-black/5 bg-white h-32">
-                        <Image src={data.imageUrl} alt="Chart" fill className="object-cover" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
+                        <Image 
+                            src={data.imageUrl} 
+                            alt="Chart" 
+                            fill 
+                            className="object-cover" 
+                            onError={() => setImageError(prev => ({ ...prev, [data.imageUrl!]: true }))}
+                        />
                         {!data.locked && <button onClick={() => updateThread(data.id, { imageUrl: null })} className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"><X size={10} /></button>}
                     </div>
                 </div>
