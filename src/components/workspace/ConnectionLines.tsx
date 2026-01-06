@@ -54,6 +54,7 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ threads, zoom,
                 lines.push({
                     source: t,
                     target: target,
+                    // Using hasOwnProperty to safely check for connection labels
                     label: (t.connectionLabels && Object.prototype.hasOwnProperty.call(t.connectionLabels, tid)) ? t.connectionLabels[tid] : null
                 });
             }
