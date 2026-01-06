@@ -173,7 +173,7 @@ export default function Canvas() {
         };
 
         container.addEventListener('wheel', wheelHandler, { passive: false });
-        return () => container.removeEventListener('wheel', wheelHandler);
+        return () => { container.removeEventListener('wheel', wheelHandler); };
     }, [setViewState]);
 
     // Load saved username when user changes
@@ -328,7 +328,7 @@ export default function Canvas() {
         if (mode === 'horizontal') {
             const minX = Math.min(...selectedThreads.map(t => t.x));
             selectedThreads.forEach(t => updateThread(t.id, { x: minX }));
-        } else if (mode === 'vertical') {
+        } else {
             const minY = Math.min(...selectedThreads.map(t => t.y));
             selectedThreads.forEach(t => updateThread(t.id, { y: minY }));
         }
@@ -495,7 +495,7 @@ export default function Canvas() {
             className={`w-full h-screen overflow-hidden font-sans relative select-none transition-colors duration-500 ${darkMode ? 'bg-slate-950 text-slate-200' : 'bg-slate-50 text-slate-800'}`}
             onMouseMove={handleGlobalMouseMove}
             onMouseUp={handleGlobalMouseUp}
-            onContextMenu={(e) => e.preventDefault()}
+            onContextMenu={(e) => { e.preventDefault(); }}
         >
             <style>{`
             .animate-pulse-slow { animation: pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
@@ -510,7 +510,7 @@ export default function Canvas() {
                 <Profile
                     user={user}
                     threads={threads}
-                    onClose={() => setShowProfile(false)}
+                    onClose={() => { setShowProfile(false); }}
                     darkMode={darkMode}
                     userName={userName}
                     setUserName={setUserName}
@@ -519,7 +519,7 @@ export default function Canvas() {
             )}
 
             {showNotifications && (
-                <Notifications notifications={notifications} onClose={() => setShowNotifications(false)} darkMode={darkMode} />
+                <Notifications notifications={notifications} onClose={() => { setShowNotifications(false); }} darkMode={darkMode} />
             )}
 
             {isHistoryOpen && (
@@ -527,9 +527,9 @@ export default function Canvas() {
                     historyIds={historyIds}
                     threads={visibleThreads}
                     darkMode={darkMode}
-                    onClose={() => setIsHistoryOpen(false)}
+                    onClose={() => { setIsHistoryOpen(false); }}
                     onNavigate={handleHistoryNavigate}
-                    onClear={() => setHistoryIds([])}
+                    onClear={() => { setHistoryIds([]); }}
                 />
             )}
 
@@ -537,17 +537,17 @@ export default function Canvas() {
                 <PlaygroundManager
                     playgrounds={playgrounds}
                     currentId={currentPlaygroundId}
-                    onSelect={(id) => setCurrentPlaygroundId(id)}
+                    onSelect={(id) => { setCurrentPlaygroundId(id); }}
                     onCreate={handleCreatePlayground}
                     darkMode={darkMode}
-                    onClose={() => setIsPlaygroundMenuOpen(false)}
+                    onClose={() => { setIsPlaygroundMenuOpen(false); }}
                 />
             )}
 
             {/* Auth Modal */}
             <AuthModal
                 isOpen={showAuthModal}
-                onClose={() => setShowAuthModal(false)}
+                onClose={() => { setShowAuthModal(false); }}
                 darkMode={darkMode}
             />
 
@@ -640,7 +640,7 @@ export default function Canvas() {
                     canvasY={contextMenu.canvasY}
                     darkMode={darkMode}
                     createEntity={createEntity}
-                    onClose={() => setContextMenu(null)}
+                    onClose={() => { setContextMenu(null); }}
                 />
             )}
 

@@ -60,12 +60,12 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
             }
         }, 50);
 
-        return () => clearInterval(interval);
+        return () => { clearInterval(interval); };
     }, [duration]);
 
     const handleDismiss = () => {
         setIsExiting(true);
-        setTimeout(() => onDismiss(toast.id), 200);
+        setTimeout(() => { onDismiss(toast.id); }, 200);
     };
 
     return (

@@ -119,7 +119,7 @@ export const Card: React.FC<CardProps> = ({
             style={{ transform: `translate(${data.x}px, ${data.y}px)`, touchAction: 'none' }}
             onMouseDown={(e) => {
                 const target = e.target as HTMLElement;
-                const tagName = target?.tagName;
+                const tagName = target.tagName;
                 if (tagName && ['INPUT', 'TEXTAREA', 'BUTTON'].includes(tagName)) return;
                 if (data.locked && !e.shiftKey) return;
                 if (connectMode) { e.stopPropagation(); setConnectMode(data.id); }
@@ -179,7 +179,7 @@ export const Card: React.FC<CardProps> = ({
             {showTickerInput && !data.locked && (
                 <form onSubmit={(e) => { e.preventDefault(); if (tickerInput.trim()) { updateThread(data.id, { ticker: tickerInput.toUpperCase() }); setShowTickerInput(false); setTickerInput(''); } }} className="px-3 pb-2">
                     <div className="flex gap-2">
-                        <input type="text" value={tickerInput} onChange={(e) => setTickerInput(e.target.value)} placeholder="Symbol (e.g. BTC)" className={`flex-1 text-xs px-2 py-1 rounded border focus:outline-none ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-200' : 'bg-white border-indigo-200 text-slate-800'}`} autoFocus />
+                        <input type="text" value={tickerInput} onChange={(e) => { setTickerInput(e.target.value); }} placeholder="Symbol (e.g. BTC)" className={`flex-1 text-xs px-2 py-1 rounded border focus:outline-none ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-200' : 'bg-white border-indigo-200 text-slate-800'}`} autoFocus />
                         <button type="submit" className="bg-indigo-500 text-white p-1 rounded hover:bg-indigo-600"><Plus size={12} /></button>
                     </div>
                 </form>
@@ -195,7 +195,7 @@ export const Card: React.FC<CardProps> = ({
             {showImageInput && !data.locked && (
                 <form onSubmit={(e) => { e.preventDefault(); if (imageUrlInput.trim()) { updateThread(data.id, { imageUrl: imageUrlInput }); setShowImageInput(false); setImageUrlInput(''); } }} className="px-3 pb-2">
                     <div className="flex gap-2">
-                        <input type="text" value={imageUrlInput} onChange={(e) => setImageUrlInput(e.target.value)} placeholder="Paste image URL..." className={`flex-1 text-xs px-2 py-1 rounded border focus:outline-none ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-200' : 'bg-white border-indigo-200 text-slate-800'}`} autoFocus />
+                        <input type="text" value={imageUrlInput} onChange={(e) => { setImageUrlInput(e.target.value); }} placeholder="Paste image URL..." className={`flex-1 text-xs px-2 py-1 rounded border focus:outline-none ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-200' : 'bg-white border-indigo-200 text-slate-800'}`} autoFocus />
                         <button type="submit" className="bg-indigo-500 text-white p-1 rounded hover:bg-indigo-600"><Plus size={12} /></button>
                     </div>
                 </form>
@@ -236,7 +236,7 @@ export const Card: React.FC<CardProps> = ({
                 {!data.locked && (
                     showTagInput ? (
                         <form onSubmit={(e) => { e.preventDefault(); if (newTag.trim()) { updateThread(data.id, { tags: [...(data.tags || []), newTag.trim().toUpperCase()] }); setNewTag(''); setShowTagInput(false); } }} className="flex items-center">
-                            <input autoFocus type="text" value={newTag} onChange={(e) => setNewTag(e.target.value)} onBlur={() => setShowTagInput(false)} className={`w-16 text-xs rounded px-1 py-0.5 outline-none ${darkMode ? 'bg-slate-800 text-white' : 'bg-white/70'}`} placeholder="TAG" />
+                            <input autoFocus type="text" value={newTag} onChange={(e) => { setNewTag(e.target.value); }} onBlur={() => { setShowTagInput(false); }} className={`w-16 text-xs rounded px-1 py-0.5 outline-none ${darkMode ? 'bg-slate-800 text-white' : 'bg-white/70'}`} placeholder="TAG" />
                         </form>
                     ) : (
                         <button onClick={() => { setShowTagInput(true); }} className="p-0.5 text-slate-400 hover:text-slate-500"><Plus size={12} /></button>
@@ -260,7 +260,7 @@ export const Card: React.FC<CardProps> = ({
                 </div>
                 <div className="flex items-center gap-2">
                     {creatorName && <span className="text-[9px] text-slate-400 font-medium px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/5">{creatorName}</span>}
-                    <button onClick={() => setShowComments(!showComments)} className={`flex items-center gap-1 transition-colors ${showComments ? 'text-indigo-500' : 'text-slate-500 hover:text-indigo-500'}`}>
+                    <button onClick={() => { setShowComments(!showComments); }} className={`flex items-center gap-1 transition-colors ${showComments ? 'text-indigo-500' : 'text-slate-500 hover:text-indigo-500'}`}>
                         <MessageSquare size={12} /><span className="text-[10px] font-medium">{data.comments?.length || 0}</span>
                     </button>
                 </div>
@@ -276,7 +276,7 @@ export const Card: React.FC<CardProps> = ({
                         {(!data.comments || data.comments.length === 0) && <p className="text-xs text-slate-500 italic text-center py-2">No comments yet.</p>}
                     </div>
                     <form onSubmit={handleAddComment} className="flex gap-2">
-                        <input type="text" value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Add a comment..." className={`flex-1 rounded-md px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400 ${darkMode ? 'bg-slate-800 text-slate-200 placeholder-slate-500' : 'bg-slate-100 text-slate-800'}`} />
+                        <input type="text" value={newComment} onChange={(e) => { setNewComment(e.target.value); }} placeholder="Add a comment..." className={`flex-1 rounded-md px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400 ${darkMode ? 'bg-slate-800 text-slate-200 placeholder-slate-500' : 'bg-slate-100 text-slate-800'}`} />
                         <button type="submit" className="p-1.5 bg-indigo-500 text-white rounded-md hover:bg-indigo-600"><Send size={12} /></button>
                     </form>
                 </div>

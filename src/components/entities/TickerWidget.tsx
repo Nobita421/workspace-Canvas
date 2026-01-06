@@ -25,7 +25,7 @@ export const TickerWidget: React.FC<TickerWidgetProps> = ({ symbol, sentiment, d
                 return newPrice;
             });
         }, 2000);
-        return () => clearInterval(interval);
+        return () => { clearInterval(interval); };
     }, []);
 
     useEffect(() => {
