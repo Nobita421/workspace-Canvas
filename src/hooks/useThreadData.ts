@@ -297,7 +297,7 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError }
                 const currentCount = Object.prototype.hasOwnProperty.call(current, emoji) ? current[emoji] : 0;
                 return {
                     ...t,
-                    reactions: { ...current, [emoji]: (currentCount || 0) + 1 },
+                    reactions: { ...current, [emoji]: currentCount + 1 },
                     activity: (t.activity || 0) + 1
                 };
             }

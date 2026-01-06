@@ -328,7 +328,7 @@ export default function Canvas() {
         if (mode === 'horizontal') {
             const minX = Math.min(...selectedThreads.map(t => t.x));
             selectedThreads.forEach(t => updateThread(t.id, { x: minX }));
-        } else {
+        } else { // mode === 'vertical'
             const minY = Math.min(...selectedThreads.map(t => t.y));
             selectedThreads.forEach(t => updateThread(t.id, { y: minY }));
         }
