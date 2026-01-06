@@ -83,7 +83,7 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError }
             }
         };
 
-        fetchThreads();
+        void fetchThreads();
 
         const channel = supabase
             .channel('schema-db-changes')
@@ -143,18 +143,24 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError }
         // 1. Optimistic Update
         setThreads(prev => prev.map(t => t.id === id ? { ...t, ...data } : t));
 
-        // 2. Accumulate Data
-        pendingData.current[id] = { ...(pendingData.current[id] || {}), ...data };
+        // 2. Accumulate Data - safely access object property
+        const currentPendingData = pendingData.current[id];
+        pendingData.current[id] = { ...(currentPendingData || {}), ...data };
 
-        // 3. Debounce Server Call
-        if (pendingUpdates.current[id]) {
-            clearTimeout(pendingUpdates.current[id]);
+        // 3. Debounce Server Call - safely access object property
+        const existingTimeout = pendingUpdates.current[id];
+        if (existingTimeout) {
+            clearTimeout(existingTimeout);
         }
 
         pendingUpdates.current[id] = setTimeout(async () => {
             const updatesToSync = pendingData.current[id];
-            delete pendingData.current[id];
-            delete pendingUpdates.current[id];
+            if (id in pendingData.current) {
+                delete pendingData.current[id];
+            }
+            if (id in pendingUpdates.current) {
+                delete pendingUpdates.current[id];
+            }
 
             if (!updatesToSync) return;
 

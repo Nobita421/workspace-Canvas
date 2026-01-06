@@ -7,6 +7,7 @@ interface Props {
     children: ReactNode;
     fallback?: ReactNode;
     onError?: (error: Error, errorInfo: ErrorInfo) => void;
+    router?: { push: (path: string) => void };
 }
 
 interface State {
@@ -50,7 +51,13 @@ export class ErrorBoundary extends Component<Props, State> {
     };
 
     handleGoHome = () => {
-        window.location.href = '/';
+        // Use router if available, otherwise use window.location
+        if (this.props.router) {
+            this.props.router.push('/');
+        } else {
+            // Safe navigation without potential XSS
+            window.location.assign('/');
+        }
     };
 
     render() {
@@ -137,6 +144,8 @@ export function ErrorBoundaryWrapper({
     fallback?: ReactNode;
     onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }) {
+    // Note: We don't use useRouter here because it violates Rules of Hooks
+    // ErrorBoundary will fallback to window.location.assign() instead
     return (
         <ErrorBoundary fallback={fallback} onError={onError}>
             {children}

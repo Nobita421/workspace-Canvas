@@ -124,9 +124,10 @@ export function useCanvasState({
         setLocalPositions(prev => {
             const next = { ...prev };
             Object.keys(next).forEach(id => {
-                if (next[id]) {
-                    const rawX = next[id].x + dx;
-                    const rawY = next[id].y + dy;
+                if (id in next && next[id]) {
+                    const current = next[id];
+                    const rawX = current.x + dx;
+                    const rawY = current.y + dy;
                     next[id] = { x: rawX, y: rawY };
                 }
             });

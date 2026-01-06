@@ -60,7 +60,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, threads, onClose, darkMo
                                 ) : (
                                     <>
                                         <h2 className="font-bold text-lg">{userName}</h2>
-                                        <button onClick={() => setIsEditing(true)} className="text-slate-400 hover:text-indigo-500"><Edit2 size={12} /></button>
+                                        <button onClick={() => { setIsEditing(true); }} className="text-slate-400 hover:text-indigo-500"><Edit2 size={12} /></button>
                                     </>
                                 )}
                             </div>

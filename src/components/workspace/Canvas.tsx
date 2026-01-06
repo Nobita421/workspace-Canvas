@@ -299,10 +299,10 @@ export default function Canvas() {
         });
     };
 
-    const handleShare = (cardId: string) => {
+    const handleShare = async (cardId: string) => {
         const mockUrl = `https://financeflow.app/t/${cardId}`;
         try {
-            navigator.clipboard.writeText(mockUrl);
+            await navigator.clipboard.writeText(mockUrl);
             showSuccess("Link copied to clipboard!");
         } catch (e) { 
             console.error("Copy failed", e);

@@ -29,9 +29,11 @@ export const Zone: React.FC<ZoneProps> = ({ data, onDragStart, onResizeStart, is
             `}
             style={{ transform: `translate(${data.x}px, ${data.y}px)`, width: data.width || 300, height: data.height || 300, touchAction: 'none' }}
             onMouseDown={(e) => {
-                if (['INPUT', 'TEXTAREA', 'BUTTON'].includes((e.target as HTMLElement).tagName)) return;
+                const targetElement = e.target as HTMLElement;
+                const tagName = targetElement.tagName;
+                if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'BUTTON') return;
                 if (data.locked) return;
-                if ((e.target as HTMLElement).closest('.resize-handle') || (e.target as HTMLElement).closest('.zone-btn')) return;
+                if (targetElement.closest('.resize-handle') || targetElement.closest('.zone-btn')) return;
                 if (e.shiftKey) { e.stopPropagation(); toggleSelection(data.id); } else onDragStart(e, data.id);
             }}
         >

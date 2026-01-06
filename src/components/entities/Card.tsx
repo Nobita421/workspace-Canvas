@@ -18,6 +18,17 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Helper function to get top reaction from reactions object
+function getTopReaction(reactions: Record<string, number> | undefined): { emoji: string; count: number } | null {
+    if (!reactions || Object.keys(reactions).length === 0) return null;
+    
+    const entries = Object.entries(reactions);
+    const topReaction = entries.sort((a, b) => (b[1] as number) - (a[1] as number))[0];
+    const totalCount = Object.values(reactions).reduce((a, b) => (a as number) + (b as number), 0);
+    
+    return { emoji: topReaction[0], count: totalCount };
+}
+
 interface CardProps {
     data: Thread;
     onDragStart: (e: React.MouseEvent | React.TouchEvent, id: string) => void;
@@ -32,7 +43,7 @@ interface CardProps {
     toggleSelection: (id: string) => void;
     darkMode: boolean;
     onQuickSpawn: (id: string, direction: 'top' | 'bottom' | 'left' | 'right') => void;
-    onShare: (id: string) => void;
+    onShare: (id: string) => void | Promise<void>;
     creatorName?: string;
     onReact: (id: string, emoji: string) => void;
 }
@@ -53,13 +64,19 @@ export const Card: React.FC<CardProps> = ({
     const [imageError, setImageError] = useState<Record<string, boolean>>({});
 
     const sentimentKey = data.sentiment || 'neutral';
-    const sentiment = SENTIMENTS[sentimentKey];
+    // Validate sentiment key to prevent object injection
+    const sentiment = (sentimentKey in SENTIMENTS) 
+        ? SENTIMENTS[sentimentKey as keyof typeof SENTIMENTS]
+        : SENTIMENTS.neutral;
     const theme = darkMode ? sentiment.dark : sentiment.light;
     const SentimentIcon = sentiment.icon;
     const titleInputRef = useRef<HTMLInputElement>(null);
     
     // Check if the current user is the owner of this card
     const isOwner = user && data.author === user.id;
+
+    // Calculate top reaction for display
+    const topReaction = getTopReaction(data.reactions);
 
     useEffect(() => {
         if (data.isNewSpawn && titleInputRef.current) {
@@ -140,7 +157,7 @@ export const Card: React.FC<CardProps> = ({
                     </div>
 
                     <div className="flex gap-1 items-center">
-                        <button onClick={(e) => { e.stopPropagation(); onShare(data.id); }} className={`p-1.5 hover:bg-white/20 rounded transition-colors ${darkMode ? 'text-slate-400' : 'text-slate-500'}`} title="Share Link"><Share2 size={14} /></button>
+                        <button onClick={(e) => { e.stopPropagation(); void onShare(data.id); }} className={`p-1.5 hover:bg-white/20 rounded transition-colors ${darkMode ? 'text-slate-400' : 'text-slate-500'}`} title="Share Link"><Share2 size={14} /></button>
                         <button onClick={(e) => { e.stopPropagation(); updateThread(data.id, { locked: !data.locked }); }} className={`p-1.5 rounded transition-colors ${data.locked ? 'text-indigo-500' : 'text-slate-400 opacity-0 group-hover:opacity-100'}`}>{data.locked ? <Lock size={12} /> : <Unlock size={12} />}</button>
                         {!data.locked && (
                             <>
@@ -166,7 +183,7 @@ export const Card: React.FC<CardProps> = ({
             {data.ticker && (
                 <div className="px-3 relative group">
                     <TickerWidget symbol={data.ticker} sentiment={data.sentiment} darkMode={darkMode} />
-                    {!data.locked && <button onClick={() => updateThread(data.id, { ticker: null })} className="absolute top-1 right-4 bg-black/50 text-white p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><X size={10} /></button>}
+                    {!data.locked && <button onClick={() => { updateThread(data.id, { ticker: null }); }} className="absolute top-1 right-4 bg-black/50 text-white p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><X size={10} /></button>}
                 </div>
             )}
 
@@ -187,9 +204,14 @@ export const Card: React.FC<CardProps> = ({
                             alt="Chart" 
                             fill 
                             className="object-cover" 
-                            onError={() => setImageError(prev => ({ ...prev, [data.imageUrl!]: true }))}
+                            onError={() => {
+                                const imageUrl = data.imageUrl;
+                                if (imageUrl) {
+                                    setImageError(prev => ({ ...prev, [imageUrl]: true }));
+                                }
+                            }}
                         />
-                        {!data.locked && <button onClick={() => updateThread(data.id, { imageUrl: null })} className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"><X size={10} /></button>}
+                        {!data.locked && <button onClick={() => { updateThread(data.id, { imageUrl: null }); }} className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"><X size={10} /></button>}
                     </div>
                 </div>
             )}
@@ -204,7 +226,7 @@ export const Card: React.FC<CardProps> = ({
                 {data.tags && data.tags.map(tag => (
                     <span key={tag} className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold border ${darkMode ? 'bg-slate-800/50 text-slate-400 border-slate-700' : 'bg-white/50 text-slate-600 border-white/20'}`}>
                         {tag}
-                        {!data.locked && <button onClick={() => updateThread(data.id, { tags: data.tags?.filter(t => t !== tag) })} className="ml-1 hover:text-red-500"><X size={8} /></button>}
+                        {!data.locked && <button onClick={() => { updateThread(data.id, { tags: data.tags?.filter(t => t !== tag) }); }} className="ml-1 hover:text-red-500"><X size={8} /></button>}
                     </span>
                 ))}
                 {!data.locked && (
@@ -213,7 +235,7 @@ export const Card: React.FC<CardProps> = ({
                             <input autoFocus type="text" value={newTag} onChange={(e) => setNewTag(e.target.value)} onBlur={() => setShowTagInput(false)} className={`w-16 text-xs rounded px-1 py-0.5 outline-none ${darkMode ? 'bg-slate-800 text-white' : 'bg-white/70'}`} placeholder="TAG" />
                         </form>
                     ) : (
-                        <button onClick={() => setShowTagInput(true)} className="p-0.5 text-slate-400 hover:text-slate-500"><Plus size={12} /></button>
+                        <button onClick={() => { setShowTagInput(true); }} className="p-0.5 text-slate-400 hover:text-slate-500"><Plus size={12} /></button>
                     )
                 )}
             </div>
@@ -222,12 +244,14 @@ export const Card: React.FC<CardProps> = ({
             <div className={`px-3 py-2 backdrop-blur-sm rounded-b-xl flex justify-between items-center border-t ${darkMode ? 'bg-slate-800/30 border-slate-700/50' : 'bg-white/40 border-white/20'}`}>
                 <div className="flex items-center gap-2 group/footer">
                     <div className={`flex items-center gap-1 rounded-full px-1.5 py-1 transition-colors ${darkMode ? 'bg-slate-800/50 hover:bg-slate-800' : 'bg-white/40 hover:bg-white/80'}`}>
-                        <button onClick={() => handleReaction('🚀')} className="text-xs hover:scale-125 transition-transform" title="To the moon">🚀</button>
-                        <button onClick={() => handleReaction('📉')} className="text-xs hover:scale-125 transition-transform" title="Short it">📉</button>
-                        <button onClick={() => handleReaction('💎')} className="text-xs hover:scale-125 transition-transform" title="Diamond Hands">💎</button>
+                        <button onClick={() => { handleReaction('🚀'); }} className="text-xs hover:scale-125 transition-transform" title="To the moon">🚀</button>
+                        <button onClick={() => { handleReaction('📉'); }} className="text-xs hover:scale-125 transition-transform" title="Short it">📉</button>
+                        <button onClick={() => { handleReaction('💎'); }} className="text-xs hover:scale-125 transition-transform" title="Diamond Hands">💎</button>
                     </div>
-                    {(Object.keys(data.reactions || {}).length > 0) && (
-                        <div className="text-[10px] text-slate-500 font-bold ml-1">{Object.entries(data.reactions || {}).sort((a, b) => b[1] - a[1])[0][0]} {Object.values(data.reactions || {}).reduce((a, b) => a + b, 0)}</div>
+                    {topReaction && (
+                        <div className="text-[10px] text-slate-500 font-bold ml-1">
+                            {topReaction.emoji} {topReaction.count}
+                        </div>
                     )}
                 </div>
                 <div className="flex items-center gap-2">
