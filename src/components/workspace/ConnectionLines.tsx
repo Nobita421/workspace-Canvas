@@ -27,8 +27,8 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ threads, zoom,
         if (t) {
             const newLabels = { ...(t.connectionLabels || {}) };
             if (editValue === '') {
-                // Safely delete property
-                if (connTargetId in newLabels) {
+                // Safely delete property using Object.prototype.hasOwnProperty
+                if (Object.prototype.hasOwnProperty.call(newLabels, connTargetId)) {
                     delete newLabels[connTargetId];
                 }
             } else {
@@ -54,7 +54,8 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ threads, zoom,
                 lines.push({
                     source: t,
                     target: target,
-                    label: (t.connectionLabels && tid in t.connectionLabels) ? t.connectionLabels[tid] : null
+                    // Using hasOwnProperty to safely check for connection labels
+                    label: (t.connectionLabels && Object.prototype.hasOwnProperty.call(t.connectionLabels, tid)) ? t.connectionLabels[tid] : null
                 });
             }
         });

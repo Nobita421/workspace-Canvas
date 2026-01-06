@@ -123,8 +123,9 @@ export function useCanvasState({
 
         setLocalPositions(prev => {
             const next = { ...prev };
+            // Using hasOwnProperty as defense against prototype pollution
             Object.keys(next).forEach(id => {
-                if (id in next && next[id]) {
+                if (Object.prototype.hasOwnProperty.call(next, id) && next[id]) {
                     const current = next[id];
                     const rawX = current.x + dx;
                     const rawY = current.y + dy;
