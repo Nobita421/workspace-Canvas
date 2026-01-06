@@ -1,24 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Workspace Canvas
+
+This is a [Next.js](https://nextjs.org) collaborative workspace application with real-time canvas capabilities, built with Supabase for backend services.
+
+## Prerequisites
+
+- Node.js 18+
+- pnpm (required by this project)
+- A Supabase account and project
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install Dependencies
+
+This project uses pnpm as the package manager:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Install pnpm globally if you haven't already
+npm install -g pnpm
+
+# Install project dependencies
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Copy the `.env.example` file to `.env.local` and fill in your Supabase credentials:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cp .env.example .env.local
+```
+
+Then edit `.env.local` with your Supabase project credentials:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### 3. Database Setup
+
+Run the SQL schema provided in `schema.sql` in your Supabase project to set up the required tables.
+
+### 4. Run the Development Server
+
+```bash
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the workspace canvas.
+
+## Features
+
+- **Real-time Collaboration**: Multiple users can work on the same canvas simultaneously
+- **Interactive Canvas**: Create cards, zones, and connections with drag-and-drop functionality
+- **Supabase Integration**: Authentication and real-time data synchronization
+- **Redis Caching**: Optional caching layer for improved performance
+- **TypeScript**: Fully typed codebase for better developer experience
+
+## Project Structure
+
+- `src/app/` - Next.js app router pages and API routes
+- `src/components/` - React components (workspace, entities, UI)
+- `src/contexts/` - React context providers (Auth, Toast)
+- `src/hooks/` - Custom React hooks
+- `src/lib/` - Utility functions, types, and configurations
+
+## Scripts
+
+- `pnpm dev` - Start development server
+- `pnpm build` - Build for production
+- `pnpm start` - Start production server
+- `pnpm lint` - Run ESLint
+
+## Technologies
+
+- Next.js 16 with App Router
+- React 19
+- TypeScript
+- Supabase (Auth + Database + Realtime)
+- Tailwind CSS 4
+- Framer Motion (animations)
+- Redis (optional caching)
 
 ## Learn More
 
