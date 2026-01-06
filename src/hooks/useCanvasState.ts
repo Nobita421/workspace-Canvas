@@ -124,7 +124,8 @@ export function useCanvasState({
         setLocalPositions(prev => {
             const next = { ...prev };
             Object.keys(next).forEach(id => {
-                if (id in next && next[id]) {
+                // Safely check if property exists to prevent prototype pollution
+                if (Object.prototype.hasOwnProperty.call(next, id) && next[id]) {
                     const current = next[id];
                     const rawX = current.x + dx;
                     const rawY = current.y + dy;

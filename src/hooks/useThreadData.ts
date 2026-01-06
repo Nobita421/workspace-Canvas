@@ -155,10 +155,11 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError }
 
         pendingUpdates.current[id] = setTimeout(async () => {
             const updatesToSync = pendingData.current[id];
-            if (id in pendingData.current) {
+            // Safely delete properties using Object.prototype.hasOwnProperty
+            if (Object.prototype.hasOwnProperty.call(pendingData.current, id)) {
                 delete pendingData.current[id];
             }
-            if (id in pendingUpdates.current) {
+            if (Object.prototype.hasOwnProperty.call(pendingUpdates.current, id)) {
                 delete pendingUpdates.current[id];
             }
 

@@ -118,7 +118,9 @@ export const Card: React.FC<CardProps> = ({
             )}
             style={{ transform: `translate(${data.x}px, ${data.y}px)`, touchAction: 'none' }}
             onMouseDown={(e) => {
-                if (['INPUT', 'TEXTAREA', 'BUTTON'].includes((e.target as HTMLElement).tagName)) return;
+                const target = e.target as HTMLElement;
+                const tagName = target?.tagName;
+                if (tagName && ['INPUT', 'TEXTAREA', 'BUTTON'].includes(tagName)) return;
                 if (data.locked && !e.shiftKey) return;
                 if (connectMode) { e.stopPropagation(); setConnectMode(data.id); }
                 else if (!showComments && !showImageInput) {
@@ -127,7 +129,9 @@ export const Card: React.FC<CardProps> = ({
                 }
             }}
             onTouchStart={(e) => {
-                if (['INPUT', 'TEXTAREA', 'BUTTON'].includes((e.target as HTMLElement).tagName)) return;
+                const target = e.target as HTMLElement;
+                const tagName = target?.tagName;
+                if (tagName && ['INPUT', 'TEXTAREA', 'BUTTON'].includes(tagName)) return;
                 if (connectMode) { e.stopPropagation(); setConnectMode(data.id); }
                 else if (!showComments && !showImageInput && !data.locked) onDragStart(e, data.id);
             }}
