@@ -80,7 +80,8 @@ export function useCanvasState({
             selectedIds.forEach(selectedId => {
                 const thread = visibleThreads.find(t => t.id === selectedId);
                 if (thread) {
-                    initialPositions[selectedId] = { x: thread.x, y: thread.y };
+                    // Use Object.assign to avoid direct bracket assignment with dynamic key
+                    Object.assign(initialPositions, { [selectedId]: { x: thread.x, y: thread.y } });
                 }
             });
             setLocalPositions(initialPositions);
@@ -122,18 +123,15 @@ export function useCanvasState({
         const dy = (e.clientY - dragOffset.y) / viewState.zoom;
 
         setLocalPositions(prev => {
-            const next = { ...prev };
-            // Using hasOwnProperty as defense against prototype pollution
-            Object.keys(next).forEach(id => {
-                if (Object.prototype.hasOwnProperty.call(next, id)) {
-                    const current = next[id];
-                    if (current) {
-                        const rawX = current.x + dx;
-                        const rawY = current.y + dy;
-                        next[id] = { x: rawX, y: rawY };
-                    }
+            const next: Record<string, { x: number; y: number }> = {};
+            // Iterate using Object.entries to safely access values
+            for (const [posId, current] of Object.entries(prev)) {
+                if (Object.prototype.hasOwnProperty.call(prev, posId)) {
+                    const rawX = current.x + dx;
+                    const rawY = current.y + dy;
+                    next[posId] = { x: rawX, y: rawY };
                 }
-            });
+            }
             return next;
         });
         setDragOffset({ x: e.clientX, y: e.clientY });

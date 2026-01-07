@@ -145,10 +145,7 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError }
         // 1. Optimistic Update
         setThreads(prev => prev.map(t => t.id === id ? { ...t, ...data } : t));
 
-        // 2. Accumulate Data - Use Map to avoid object injection
-        if (!pendingData.current) {
-            pendingData.current = {};
-        }
+        // 2. Accumulate Data - Use hasOwnProperty to avoid object injection
         const currentPendingData = Object.prototype.hasOwnProperty.call(pendingData.current, id) ? pendingData.current[id] : undefined;
         pendingData.current[id] = { ...(currentPendingData || {}), ...data };
 
@@ -158,7 +155,7 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError }
             clearTimeout(existingTimeout);
         }
 
-        pendingUpdates.current[id] = setTimeout(async () => {
+        pendingUpdates.current[id] = setTimeout(() => {
             const updatesToSync = Object.prototype.hasOwnProperty.call(pendingData.current, id) ? pendingData.current[id] : undefined;
             // Safely delete properties
             if (Object.prototype.hasOwnProperty.call(pendingData.current, id)) {
@@ -170,92 +167,39 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError }
 
             if (!updatesToSync) return;
 
-            // Get the latest state to merge with (though we only send updates)
-            // We need to map the updates to DB format
-            // Note: mapThreadToDB expects a full thread object usually, but let's see if we can just map the partial
-            // If mapThreadToDB requires full object, we might need to find the thread first.
-            
-            // Let's find the current thread from state (it has the optimistic updates applied)
-            // Actually, we can't rely on 'threads' state inside setTimeout closure unless we use a ref or functional update, 
-            // but we just need to send 'updatesToSync'.
-            
-            // We need to be careful about mapThreadToDB. It takes (thread, playgroundId, userId).
-            // It returns a snake_case object.
-            // We should probably map the *merged* thread to be safe, or just map the keys we know.
-            // Let's look at mapThreadToDB implementation in utils.ts. 
-            // Since I can't see utils.ts right now, I'll assume I need to pass a "complete enough" object or handle mapping manually.
-            // However, the original code did: 
-            // const updatedThread = { ...currentThread, ...data };
-            // const dbPayload = mapThreadToDB(updatedThread, ...);
-            
-            // So I should try to reconstruct the thread.
-            // But 'threads' in this closure is stale.
-            // I'll use a functional state update to get the latest thread to map, OR just trust that mapThreadToDB handles partials?
-            // Unlikely.
-            
-            // Better approach: The API expects `updates`. 
-            // The original code sent `dbPayload` which was the FULL object mapped to DB format.
-            // If the API handles partial updates (PATCH), we should send partials.
-            // Let's check the API route... I read it earlier.
-            // src/app/api/threads/route.ts likely does supabase.update(updates).
-            
-            // So I need to map `updatesToSync` to DB format.
-            // I'll assume I can construct a "mock" thread with just the updates to pass to mapThreadToDB, 
-            // or better, I'll fetch the latest thread from the ref if I maintain one, 
-            // OR I'll just map the keys manually if mapThreadToDB is too strict.
-            
-            // Let's assume for now I can get the thread from the state setter to ensure I have the latest.
-            // Wait, I can't access state in setTimeout easily without refs.
-            
-            // Let's use a ref for threads as well to access inside timeout?
-            // Or just pass the `updatesToSync` and hope `mapThreadToDB` works on partials?
-            // Let's look at the original code again:
-            // const updatedThread = { ...currentThread, ...data };
-            // const dbPayload = mapThreadToDB(updatedThread, currentPlaygroundId, user.id);
-            
-            // I will use a ref to track the latest threads state to ensure I can grab the full object.
-            
-            // Actually, I'll just use the `updatesToSync` and map it. 
-            // But `mapThreadToDB` might need required fields.
-            // Let's try to just send the updates.
-            
-            // To be safe, I will use the `setThreads` callback to get the latest thread, 
-            // but I can't trigger a side effect (fetch) from within the setter.
-            
-            // Solution: `threadsRef`
-            
+            // Use threadsRef to get the latest thread state
             const currentThread = threadsRef.current.find(t => t.id === id);
-            if (!currentThread) return; // Should not happen
-            
-            // We apply the accumulated updates to the current thread (which should already have them optimistically, 
-            // but `threadsRef` needs to be kept in sync).
+            if (!currentThread) return;
             
             const finalThreadState = { ...currentThread, ...updatesToSync };
             const dbPayload = mapThreadToDB(finalThreadState, currentPlaygroundId, user.id);
 
-            try {
-                const res = await fetch('/api/threads', {
-                    method: 'PATCH',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {})
-                    },
-                    body: JSON.stringify({
-                        userId: user.id,
-                        playgroundId: currentPlaygroundId,
-                        threadId: id,
-                        updates: dbPayload
-                    })
-                });
-                
-                if (!res.ok) {
-                    const json = await res.json();
-                    throw new Error(json.error || 'Failed to update');
+            // Wrap async logic in IIFE to avoid returning Promise from setTimeout callback
+            void (async () => {
+                try {
+                    const res = await fetch('/api/threads', {
+                        method: 'PATCH',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {})
+                        },
+                        body: JSON.stringify({
+                            userId: user.id,
+                            playgroundId: currentPlaygroundId,
+                            threadId: id,
+                            updates: dbPayload
+                        })
+                    });
+                    
+                    if (!res.ok) {
+                        const json = await res.json();
+                        throw new Error(json.error || 'Failed to update');
+                    }
+                } catch (error) {
+                    console.error('Error updating thread:', error);
+                    showError('Failed to save changes. Please try again.');
                 }
-            } catch (error) {
-                console.error('Error updating thread:', error);
-                showError('Failed to save changes. Please try again.');
-            }
+            })();
         }, 500); // 500ms debounce
     }, [user, currentPlaygroundId, showError, session]);
 
