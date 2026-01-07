@@ -55,7 +55,7 @@ export function useRealtime(playgroundId: string, user: User | null, userName: s
                 const newState = channel.presenceState();
                 const users: OnlineUser[] = [];
                 Object.keys(newState).forEach(key => {
-                    if (key in newState) {
+                    if (Object.prototype.hasOwnProperty.call(newState, key)) {
                         newState[key].forEach((presence) => {
                             users.push(presence as unknown as OnlineUser);
                         });

@@ -85,13 +85,13 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ threads, zoom,
                             <div className="flex justify-center items-center h-full">
                                 {editingId === source.id && targetId === target.id ? (
                                     <div className="pointer-events-auto">
-                                        <input autoFocus type="text" value={editValue} onChange={(e) => setEditValue(e.target.value)} onBlur={() => saveLabel(source.id, target.id)} onKeyDown={(e) => { if (e.key === 'Enter') saveLabel(source.id, target.id); }} className={`text-[10px] px-2 py-1 rounded shadow-lg outline-none border w-24 text-center ${darkMode ? 'bg-slate-800 text-white border-indigo-500' : 'bg-white text-slate-800 border-indigo-500'}`} placeholder="Label..." />
+                                         <input autoFocus type="text" value={editValue} onChange={(e) => setEditValue(e.target.value)} onBlur={() => { saveLabel(source.id, target.id); }} onKeyDown={(e) => { if (e.key === 'Enter') { saveLabel(source.id, target.id); } }} className={`text-[10px] px-2 py-1 rounded shadow-lg outline-none border w-24 text-center ${darkMode ? 'bg-slate-800 text-white border-indigo-500' : 'bg-white text-slate-800 border-indigo-500'}`} placeholder="Label..." />
                                     </div>
                                 ) : (
                                     label ? (
-                                        <div className={`px-2 py-0.5 text-[9px] rounded-full border shadow-sm cursor-pointer whitespace-nowrap pointer-events-auto ${darkMode ? 'bg-slate-800 border-slate-600 text-slate-300 hover:border-slate-500' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400'}`} onClick={(e) => startEditing(e, source.id, target.id, label ?? undefined)}>{label}</div>
+                                        <div className={`px-2 py-0.5 text-[9px] rounded-full border shadow-sm cursor-pointer whitespace-nowrap pointer-events-auto ${darkMode ? 'bg-slate-800 border-slate-600 text-slate-300 hover:border-slate-500' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400'}`} onClick={(e) => { startEditing(e, source.id, target.id, label); }}>{label}</div>
                                     ) : (
-                                        <div className={`opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full cursor-pointer pointer-events-auto ${darkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-white text-slate-400 hover:text-slate-600'} shadow-sm border ${darkMode ? 'border-slate-600' : 'border-slate-200'}`} onClick={(e) => startEditing(e, source.id, target.id, label ?? undefined)} title="Add Label"><Type size={12} /></div>
+                                        <div className={`opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full cursor-pointer pointer-events-auto ${darkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-white text-slate-400 hover:text-slate-600'} shadow-sm border ${darkMode ? 'border-slate-600' : 'border-slate-200'}`} onClick={(e) => { startEditing(e, source.id, target.id, undefined); }} title="Add Label"><Type size={12} /></div>
                                     )
                                 )}
                             </div>

@@ -83,7 +83,9 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError }
             }
         };
 
-        void fetchThreads();
+        fetchThreads().catch((error) => {
+            console.error('Error in fetchThreads:', error);
+        });
 
         const channel = supabase
             .channel('schema-db-changes')
@@ -143,19 +145,22 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError }
         // 1. Optimistic Update
         setThreads(prev => prev.map(t => t.id === id ? { ...t, ...data } : t));
 
-        // 2. Accumulate Data - safely access object property
-        const currentPendingData = pendingData.current[id];
+        // 2. Accumulate Data - Use Map to avoid object injection
+        if (!pendingData.current) {
+            pendingData.current = {};
+        }
+        const currentPendingData = Object.prototype.hasOwnProperty.call(pendingData.current, id) ? pendingData.current[id] : undefined;
         pendingData.current[id] = { ...(currentPendingData || {}), ...data };
 
-        // 3. Debounce Server Call - safely access object property
-        const existingTimeout = pendingUpdates.current[id];
+        // 3. Debounce Server Call - Use Map to avoid object injection
+        const existingTimeout = Object.prototype.hasOwnProperty.call(pendingUpdates.current, id) ? pendingUpdates.current[id] : undefined;
         if (existingTimeout) {
             clearTimeout(existingTimeout);
         }
 
         pendingUpdates.current[id] = setTimeout(async () => {
-            const updatesToSync = pendingData.current[id];
-            // Safely delete properties using Object.prototype.hasOwnProperty
+            const updatesToSync = Object.prototype.hasOwnProperty.call(pendingData.current, id) ? pendingData.current[id] : undefined;
+            // Safely delete properties
             if (Object.prototype.hasOwnProperty.call(pendingData.current, id)) {
                 delete pendingData.current[id];
             }
@@ -289,9 +294,10 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError }
         setThreads(prev => prev.map(t => {
             if (t.id === threadId) {
                 const current = t.reactions || {};
+                const currentCount = Object.prototype.hasOwnProperty.call(current, emoji) ? current[emoji] : 0;
                 return {
                     ...t,
-                    reactions: { ...current, [emoji]: (current[emoji] || 0) + 1 },
+                    reactions: { ...current, [emoji]: currentCount + 1 },
                     activity: (t.activity || 0) + 1
                 };
             }

@@ -9,7 +9,7 @@ export const LaserPointer: React.FC<LaserPointerProps> = () => {
     useEffect(() => {
         const handleMove = (e: MouseEvent) => { setTrail(prev => [...prev.slice(-15), { x: e.clientX, y: e.clientY, id: Math.random() }]); };
         window.addEventListener('mousemove', handleMove);
-        return () => window.removeEventListener('mousemove', handleMove);
+        return () => { window.removeEventListener('mousemove', handleMove); };
     }, []);
     return (
         <div className="fixed inset-0 pointer-events-none z-[9999]">

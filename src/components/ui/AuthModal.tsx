@@ -42,7 +42,8 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
                     onClose();
                 }
             } else if (mode === 'signup') {
-                if (password !== confirmPassword) {
+                const passwordsMatch = password === confirmPassword;
+                if (!passwordsMatch) {
                     setError('Passwords do not match');
                     setLoading(false);
                     return;
@@ -124,7 +125,7 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
             >
                 {/* Close button */}
                 <button
-                    onClick={onClose}
+                    onClick={() => { onClose(); }}
                     aria-label="Close authentication modal"
                     className={`absolute top-4 right-4 p-2 rounded-full transition-colors ${darkMode ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}
                 >
@@ -174,7 +175,7 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
                 )}
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={(e) => { void handleSubmit(e); }} className="space-y-4">
                     {mode === 'signup' && (
                         <div>
                             <label className={`block text-sm font-medium mb-1.5 ${mutedClass}`}>
@@ -185,7 +186,7 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
                                 <input
                                     type="text"
                                     value={userName}
-                                    onChange={(e) => setUserName(e.target.value)}
+                                    onChange={(e) => { setUserName(e.target.value); }}
                                     placeholder="Trader Name"
                                     className={`w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all ${inputClass}`}
                                 />
@@ -202,7 +203,7 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
                             <input
                                 type="email"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={(e) => { setEmail(e.target.value); }}
                                 placeholder="you@example.com"
                                 required
                                 className={`w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all ${inputClass}`}
@@ -220,7 +221,7 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
                                 <input
                                     type="password"
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    onChange={(e) => { setPassword(e.target.value); }}
                                     placeholder="••••••••"
                                     required
                                     minLength={6}
@@ -240,7 +241,7 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
                                 <input
                                     type="password"
                                     value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    onChange={(e) => { setConfirmPassword(e.target.value); }}
                                     placeholder="••••••••"
                                     required
                                     minLength={6}

@@ -28,16 +28,16 @@ export const PlaygroundManager: React.FC<PlaygroundManagerProps> = ({ playground
     };
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm" onClick={onClose}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm" onClick={() => { onClose(); }}>
             <div
                 className={`w-96 p-6 rounded-2xl shadow-2xl border ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-800'}`}
-                onClick={e => e.stopPropagation()}
+                onClick={e => { e.stopPropagation(); }}
             >
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="font-bold text-lg flex items-center gap-2">
                         <Briefcase size={20} className="text-indigo-500" /> Switch Playground
                     </h2>
-                    <button onClick={onClose}><X size={18} /></button>
+                    <button onClick={() => { onClose(); }}><X size={18} /></button>
                 </div>
 
                 <div className="space-y-2 max-h-64 overflow-y-auto mb-4 pr-2">
@@ -63,13 +63,13 @@ export const PlaygroundManager: React.FC<PlaygroundManagerProps> = ({ playground
                             autoFocus
                             type="text"
                             value={newName}
-                            onChange={(e) => setNewName(e.target.value)}
+                            onChange={(e) => { setNewName(e.target.value); }}
                             placeholder="Playground Name..."
                             className={`flex-1 px-3 py-2 rounded-lg border focus:outline-none ${darkMode ? 'bg-slate-800 border-slate-600' : 'bg-white border-slate-300'}`}
-                            onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+                            onKeyDown={(e) => { if (e.key === 'Enter') { handleCreate(); } }}
                         />
                         <button
-                            onClick={handleCreate}
+                            onClick={() => { handleCreate(); }}
                             className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600"
                         >
                             Add

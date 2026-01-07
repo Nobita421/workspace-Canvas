@@ -35,10 +35,10 @@ export const Profile: React.FC<ProfileProps> = ({ user, threads, onClose, darkMo
     if (!user) return null;
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm" onClick={onClose}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm" onClick={() => { onClose(); }}>
             <div
                 className={`w-80 p-6 rounded-2xl shadow-2xl border ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-800'}`}
-                onClick={e => e.stopPropagation()}
+                onClick={e => { e.stopPropagation(); }}
             >
                 <div className="flex justify-between items-start mb-6">
                     <div className="flex items-center gap-3">
@@ -51,11 +51,11 @@ export const Profile: React.FC<ProfileProps> = ({ user, threads, onClose, darkMo
                                     <div className="flex items-center gap-1">
                                         <input
                                             value={tempName}
-                                            onChange={(e) => setTempName(e.target.value)}
+                                            onChange={(e) => { setTempName(e.target.value); }}
                                             className={`text-lg font-bold w-32 bg-transparent border-b focus:outline-none ${darkMode ? 'border-slate-500' : 'border-slate-300'}`}
                                             autoFocus
                                         />
-                                        <button onClick={handleSaveName} className="text-emerald-500"><Check size={14} /></button>
+                                        <button onClick={() => { handleSaveName(); }} className="text-emerald-500"><Check size={14} /></button>
                                     </div>
                                 ) : (
                                     <>

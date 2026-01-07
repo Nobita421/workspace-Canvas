@@ -122,7 +122,7 @@ export function useKeyboardShortcuts({
         const handleKeyDown = (e: KeyboardEvent) => {
             // Ignore if user is typing in an input
             const activeElement = document.activeElement as HTMLElement;
-            const tagName = activeElement?.tagName;
+            const tagName = activeElement.tagName;
             if (tagName === 'INPUT' || tagName === 'TEXTAREA') {
                 return;
             }
@@ -148,7 +148,7 @@ export function useKeyboardShortcuts({
         };
 
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        return () => { window.removeEventListener('keydown', handleKeyDown); };
     }, [selectedIds, duplicateSelected, deleteSelected, escapeAction]);
 
     return {
