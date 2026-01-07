@@ -25,14 +25,16 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ threads, zoom,
     const saveLabel = (threadId: string, connTargetId: string) => {
         const t = threads.find(th => th.id === threadId);
         if (t) {
-            const newLabels = { ...(t.connectionLabels || {}) };
+            const currentLabels = t.connectionLabels || {};
+            let newLabels: Record<string, string>;
             if (editValue === '') {
-                // Safely delete property using Object.prototype.hasOwnProperty
-                if (Object.prototype.hasOwnProperty.call(newLabels, connTargetId)) {
-                    delete newLabels[connTargetId];
-                }
+                // Create new object without the key to delete (avoids dynamic delete)
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { [connTargetId]: _removed, ...rest } = currentLabels;
+                newLabels = rest;
             } else {
-                newLabels[connTargetId] = editValue;
+                // Create new object with the updated key
+                newLabels = { ...currentLabels, [connTargetId]: editValue };
             }
             updateThread(threadId, { connectionLabels: newLabels });
         }
@@ -51,11 +53,18 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ threads, zoom,
         targets.forEach(tid => {
             const target = threads.find(x => x.id === tid);
             if (target) {
+                // Use a getter function to safely access the label
+                const getLabel = (labels: Record<string, string> | undefined, key: string): string | null => {
+                    if (!labels) return null;
+                    if (Object.prototype.hasOwnProperty.call(labels, key)) {
+                        return labels[key];
+                    }
+                    return null;
+                };
                 lines.push({
                     source: t,
                     target: target,
-                    // Using hasOwnProperty to safely check for connection labels
-                    label: (t.connectionLabels && Object.prototype.hasOwnProperty.call(t.connectionLabels, tid)) ? t.connectionLabels[tid] : null
+                    label: getLabel(t.connectionLabels, tid)
                 });
             }
         });
@@ -85,7 +94,7 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ threads, zoom,
                             <div className="flex justify-center items-center h-full">
                                 {editingId === source.id && targetId === target.id ? (
                                     <div className="pointer-events-auto">
-                                         <input autoFocus type="text" value={editValue} onChange={(e) => setEditValue(e.target.value)} onBlur={() => { saveLabel(source.id, target.id); }} onKeyDown={(e) => { if (e.key === 'Enter') { saveLabel(source.id, target.id); } }} className={`text-[10px] px-2 py-1 rounded shadow-lg outline-none border w-24 text-center ${darkMode ? 'bg-slate-800 text-white border-indigo-500' : 'bg-white text-slate-800 border-indigo-500'}`} placeholder="Label..." />
+                                         <input autoFocus type="text" value={editValue} onChange={(e) => { setEditValue(e.target.value); }} onBlur={() => { saveLabel(source.id, target.id); }} onKeyDown={(e) => { if (e.key === 'Enter') { saveLabel(source.id, target.id); } }} className={`text-[10px] px-2 py-1 rounded shadow-lg outline-none border w-24 text-center ${darkMode ? 'bg-slate-800 text-white border-indigo-500' : 'bg-white text-slate-800 border-indigo-500'}`} placeholder="Label..." />
                                     </div>
                                 ) : (
                                     label ? (

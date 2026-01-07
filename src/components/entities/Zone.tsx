@@ -29,16 +29,16 @@ export const Zone: React.FC<ZoneProps> = ({ data, onDragStart, onResizeStart, is
             `}
             style={{ transform: `translate(${data.x}px, ${data.y}px)`, width: data.width || 300, height: data.height || 300, touchAction: 'none' }}
             onMouseDown={(e) => {
-                const targetElement = e.target as HTMLElement;
-                const tagName = targetElement.tagName;
+                const targetEl = e.target as Element;
+                const tagName = targetEl.tagName;
                 if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'BUTTON') return;
                 if (data.locked) return;
-                if (targetElement.closest('.resize-handle') || targetElement.closest('.zone-btn')) return;
+                if (targetEl.closest('.resize-handle') || targetEl.closest('.zone-btn')) return;
                 if (e.shiftKey) { e.stopPropagation(); toggleSelection(data.id); } else onDragStart(e, data.id);
             }}
         >
             <div className="p-3 border-b border-inherit/20 flex justify-between items-start">
-                <input type="text" value={localTitle} onChange={(e) => { setLocalTitle(e.target.value); updateThread(data.id, { title: e.target.value }); }} className={`zone-input bg-transparent font-bold text-xs uppercase tracking-widest outline-none w-full ${darkMode ? 'text-slate-400 placeholder-slate-600' : 'text-slate-500 placeholder-slate-400'}`} placeholder="ZONE NAME" readOnly={data.locked} onMouseDown={(e) => e.stopPropagation()} />
+                <input type="text" value={localTitle} onChange={(e) => { setLocalTitle(e.target.value); updateThread(data.id, { title: e.target.value }); }} className={`zone-input bg-transparent font-bold text-xs uppercase tracking-widest outline-none w-full ${darkMode ? 'text-slate-400 placeholder-slate-600' : 'text-slate-500 placeholder-slate-400'}`} placeholder="ZONE NAME" readOnly={data.locked} onMouseDown={(e) => { e.stopPropagation(); }} />
                 <div className="flex gap-1 zone-btn">
                     <button onClick={(e) => { e.stopPropagation(); updateThread(data.id, { locked: !data.locked }); }} className={`p-1 rounded hover:bg-black/10 transition-colors ${data.locked ? 'text-indigo-500' : 'text-slate-400 opacity-0 group-hover:opacity-100'}`}>{data.locked ? <Lock size={12} /> : <Unlock size={12} />}</button>
                     {!data.locked && <button onClick={(e) => { e.stopPropagation(); const idx = ZONE_COLORS.findIndex(c => c.id === (data.color || 'slate')); const nextColor = ZONE_COLORS[(idx + 1) % ZONE_COLORS.length].id; updateThread(data.id, { color: nextColor }); }} className={`w-3 h-3 mt-1 rounded-full opacity-50 hover:opacity-100 transition-opacity ${darkMode ? 'bg-slate-600' : 'bg-slate-400'}`} />}

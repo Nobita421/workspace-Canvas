@@ -59,7 +59,8 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
                 } else {
                     setSuccess('Check your email to confirm your account!');
                 }
-            } else if (mode === 'forgot-password') {
+            } else {
+                // mode === 'forgot-password'
                 const { error } = await resetPassword(email);
                 if (error) {
                     setError(error.message);
@@ -121,7 +122,7 @@ export function AuthModal({ isOpen, onClose, darkMode = false, initialMode = 'lo
         >
             <div 
                 className={`relative w-full max-w-md mx-4 p-8 rounded-2xl shadow-2xl border ${bgClass}`}
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); }}
             >
                 {/* Close button */}
                 <button

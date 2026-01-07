@@ -118,8 +118,8 @@ export const Card: React.FC<CardProps> = ({
             )}
             style={{ transform: `translate(${data.x}px, ${data.y}px)`, touchAction: 'none' }}
             onMouseDown={(e) => {
-                const target = e.target as HTMLElement;
-                const tagName = target.tagName;
+                const targetEl = e.target as Element;
+                const tagName = targetEl.tagName;
                 if (tagName && ['INPUT', 'TEXTAREA', 'BUTTON'].includes(tagName)) return;
                 if (data.locked && !e.shiftKey) return;
                 if (connectMode) { e.stopPropagation(); setConnectMode(data.id); }
@@ -129,8 +129,8 @@ export const Card: React.FC<CardProps> = ({
                 }
             }}
             onTouchStart={(e) => {
-                const target = e.target as HTMLElement;
-                const tagName = target?.tagName;
+                const targetEl = e.target as Element;
+                const tagName = targetEl.tagName;
                 if (tagName && ['INPUT', 'TEXTAREA', 'BUTTON'].includes(tagName)) return;
                 if (connectMode) { e.stopPropagation(); setConnectMode(data.id); }
                 else if (!showComments && !showImageInput && !data.locked) onDragStart(e, data.id);
@@ -172,7 +172,7 @@ export const Card: React.FC<CardProps> = ({
                         )}
                     </div>
                 </div>
-                <input ref={titleInputRef} disabled={data.locked} type="text" value={localTitle} onChange={(e) => { setLocalTitle(e.target.value); updateThread(data.id, { title: e.target.value }); }} className={`w-full bg-transparent font-bold text-lg focus:outline-none ${theme.text} placeholder-slate-500/50`} placeholder="Topic..." onMouseDown={(e) => e.stopPropagation()} />
+                <input ref={titleInputRef} disabled={data.locked} type="text" value={localTitle} onChange={(e) => { setLocalTitle(e.target.value); updateThread(data.id, { title: e.target.value }); }} className={`w-full bg-transparent font-bold text-lg focus:outline-none ${theme.text} placeholder-slate-500/50`} placeholder="Topic..." onMouseDown={(e) => { e.stopPropagation(); }} />
             </div>
 
             {/* Ticker Input & Widget */}
@@ -222,7 +222,7 @@ export const Card: React.FC<CardProps> = ({
 
             {/* Body */}
             <div className="px-3 pb-2">
-                <textarea disabled={data.locked} value={localContent} onChange={(e) => { setLocalContent(e.target.value); updateThread(data.id, { content: e.target.value }); }} className={`w-full bg-transparent resize-none text-sm focus:outline-none min-h-[50px] leading-relaxed font-medium ${darkMode ? 'text-slate-300 placeholder-slate-600' : 'text-slate-700 placeholder-slate-400'}`} placeholder="Analysis..." onMouseDown={(e) => e.stopPropagation()} />
+                <textarea disabled={data.locked} value={localContent} onChange={(e) => { setLocalContent(e.target.value); updateThread(data.id, { content: e.target.value }); }} className={`w-full bg-transparent resize-none text-sm focus:outline-none min-h-[50px] leading-relaxed font-medium ${darkMode ? 'text-slate-300 placeholder-slate-600' : 'text-slate-700 placeholder-slate-400'}`} placeholder="Analysis..." onMouseDown={(e) => { e.stopPropagation(); }} />
             </div>
 
             {/* Tags */}
@@ -268,7 +268,7 @@ export const Card: React.FC<CardProps> = ({
 
             {/* Comments */}
             {showComments && (
-                <div className={`backdrop-blur-xl border-t rounded-b-xl p-3 max-h-48 overflow-y-auto ${darkMode ? 'bg-slate-900/90 border-slate-700 text-slate-300' : 'bg-white/90 border-slate-200'}`} onMouseDown={e => e.stopPropagation()}>
+                <div className={`backdrop-blur-xl border-t rounded-b-xl p-3 max-h-48 overflow-y-auto ${darkMode ? 'bg-slate-900/90 border-slate-700 text-slate-300' : 'bg-white/90 border-slate-200'}`} onMouseDown={(e) => { e.stopPropagation(); }}>
                     <div className="space-y-3 mb-3">
                         {data.comments?.map((c, i) => (
                             <div key={i} className="text-xs"><div className="flex items-baseline gap-2 mb-0.5"><span className={`font-bold ${darkMode ? 'text-slate-400' : 'text-slate-700'}`}>{c.authorName || 'User ' + (c.author ? c.author.slice(0, 3) : '')}</span><span className="text-[9px] text-slate-500">{new Date(c.createdAt).toLocaleTimeString()}</span></div><p className={`leading-snug ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>{c.text}</p></div>

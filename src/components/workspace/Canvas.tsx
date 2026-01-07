@@ -264,8 +264,11 @@ export default function Canvas() {
         if (e.key === 'Enter' && matchingThreads.length > 0) {
             const nextIndex = (searchMatchIndex + 1) % matchingThreads.length;
             setSearchMatchIndex(nextIndex);
-            const target = matchingThreads[nextIndex];
-            navigateToThread(target);
+            // Use .at() for safe array access
+            const target = matchingThreads.at(nextIndex);
+            if (target) {
+                navigateToThread(target);
+            }
         }
     };
 

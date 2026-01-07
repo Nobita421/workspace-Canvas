@@ -121,8 +121,9 @@ export function useKeyboardShortcuts({
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             // Ignore if user is typing in an input
-            const activeElement = document.activeElement as HTMLElement;
-            const tagName = activeElement.tagName;
+            const activeEl = document.activeElement;
+            if (!activeEl) return;
+            const tagName = activeEl.tagName;
             if (tagName === 'INPUT' || tagName === 'TEXTAREA') {
                 return;
             }

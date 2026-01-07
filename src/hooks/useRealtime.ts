@@ -54,13 +54,13 @@ export function useRealtime(playgroundId: string, user: User | null, userName: s
             .on('presence', { event: 'sync' }, () => {
                 const newState = channel.presenceState();
                 const users: OnlineUser[] = [];
-                Object.keys(newState).forEach(key => {
-                    if (Object.prototype.hasOwnProperty.call(newState, key)) {
-                        newState[key].forEach((presence) => {
+                for (const [key, presences] of Object.entries(newState)) {
+                    if (Object.prototype.hasOwnProperty.call(newState, key) && Array.isArray(presences)) {
+                        for (const presence of presences) {
                             users.push(presence as unknown as OnlineUser);
-                        });
+                        }
                     }
-                });
+                }
                 setOnlineUsers(users);
             })
             .on('broadcast', { event: 'cursor-move' }, ({ payload }) => {

@@ -203,8 +203,8 @@ export async function PATCH(request: NextRequest) {
         // Filter out undefined values to prevent unintended null updates
         const updatesData: Record<string, unknown> = {};
         for (const [key, value] of Object.entries(cleanUpdates)) {
-            if (value !== undefined) {
-                updatesData[key] = value;
+            if (value !== undefined && Object.prototype.hasOwnProperty.call(cleanUpdates, key)) {
+                Object.assign(updatesData, { [key]: value });
             }
         }
         
