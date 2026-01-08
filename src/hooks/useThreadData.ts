@@ -4,6 +4,7 @@ import { Thread } from '@/lib/types';
 import { mapThreadFromDB, mapThreadToDB, mapCommentFromDB, mapCommentToDB } from '@/lib/utils';
 import { User } from '@supabase/supabase-js';
 import { useAuth } from '@/contexts/AuthContext';
+import { safeIncrement } from '@/lib/safeObjectAccess';
 
 interface UseThreadDataProps {
     user: User | null;
@@ -234,11 +235,10 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError }
         setThreads(prev => prev.map(t => {
             if (t.id === threadId) {
                 const current = t.reactions || {};
-                const currentCount = current[emoji] ?? 0;
-                // Use spread operator to safely update reactions
+                // Use safe increment helper to avoid object injection warnings
                 return {
                     ...t,
-                    reactions: { ...current, ...{ [emoji]: currentCount + 1 } },
+                    reactions: safeIncrement(current, emoji),
                     activity: (t.activity || 0) + 1
                 };
             }

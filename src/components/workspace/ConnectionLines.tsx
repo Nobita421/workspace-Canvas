@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Thread } from '@/lib/types';
 import { Type } from 'lucide-react';
+import { safeGet } from '@/lib/safeObjectAccess';
 
 interface ConnectionLinesProps {
     threads: Thread[];
@@ -53,8 +54,8 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ threads, zoom,
         targets.forEach(tid => {
             const target = threads.find(x => x.id === tid);
             if (target) {
-                // Safely access label using optional chaining and nullish coalescing
-                const label = t.connectionLabels?.[tid] ?? null;
+                // Safely access label using helper function
+                const label = safeGet(t.connectionLabels, tid, null) ?? null;
                 lines.push({
                     source: t,
                     target: target,
