@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Check, X, AlertTriangle, Info, XCircle } from 'lucide-react';
 import { useToast, ToastMessage, ToastType } from '@/contexts/ToastContext';
+import { motion } from 'framer-motion';
 
 const toastConfig: Record<ToastType, {
     icon: React.ReactNode;
@@ -106,9 +107,10 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
 
             {/* Progress bar */}
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-700/50">
-                <div
+                <motion.div
                     className={`h-full ${config.progressClass} transition-all duration-100 ease-linear`}
-                    style={{ width: `${progress}%` }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 0 }}
                 />
             </div>
         </div>

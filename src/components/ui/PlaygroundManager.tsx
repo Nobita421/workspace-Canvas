@@ -37,7 +37,7 @@ export const PlaygroundManager: React.FC<PlaygroundManagerProps> = ({ playground
                     <h2 className="font-bold text-lg flex items-center gap-2">
                         <Briefcase size={20} className="text-indigo-500" /> Switch Playground
                     </h2>
-                    <button onClick={() => { onClose(); }}><X size={18} /></button>
+                    <button onClick={() => { onClose(); }} aria-label="Close" title="Close"><X size={18} /></button>
                 </div>
 
                 <div className="space-y-2 max-h-64 overflow-y-auto mb-4 pr-2">

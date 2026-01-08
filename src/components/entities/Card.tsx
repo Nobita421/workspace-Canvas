@@ -4,6 +4,7 @@ import { Thread } from '@/lib/types';
 import { User } from '@supabase/supabase-js';
 import { SENTIMENTS } from '@/lib/constants';
 import { TickerWidget } from './TickerWidget';
+import { motion } from 'framer-motion';
 import {
     Plus,
     MessageSquare,
@@ -107,16 +108,18 @@ export const Card: React.FC<CardProps> = ({
     };
 
     return (
-        <div
+        <motion.div
             className={cn(
                 `absolute w-72 rounded-xl shadow-lg transition-all duration-200 flex flex-col backdrop-blur-md group border`,
                 theme.bg, theme.border,
                 isDragging ? 'cursor-grabbing shadow-2xl scale-105 z-50' : data.locked ? 'cursor-default z-10' : 'cursor-grab hover:shadow-xl z-20',
                 isSelected ? `ring-2 ${theme.ring} ring-offset-2 ${darkMode ? 'ring-offset-slate-900' : 'ring-offset-white'} z-40` : '',
                 connectMode ? 'hover:ring-4 hover:ring-blue-400' : '',
-                isDimmed ? 'opacity-20 grayscale scale-95 pointer-events-none' : 'opacity-100'
+                isDimmed ? 'opacity-20 grayscale scale-95 pointer-events-none' : 'opacity-100',
+                'touch-none'
             )}
-            style={{ transform: `translate(${data.x}px, ${data.y}px)`, touchAction: 'none' }}
+            animate={{ x: data.x, y: data.y }}
+            transition={{ duration: 0 }}
             onMouseDown={(e) => {
                 const targetEl = e.target as Element;
                 const tagName = targetEl.tagName;
@@ -138,10 +141,38 @@ export const Card: React.FC<CardProps> = ({
         >
             {!data.locked && !isDragging && (
                 <>
-                    <button onMouseDown={(e) => { e.stopPropagation(); onQuickSpawn(data.id, 'right'); }} className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:scale-110 z-50"><Plus size={14} /></button>
-                    <button onMouseDown={(e) => { e.stopPropagation(); onQuickSpawn(data.id, 'bottom'); }} className="absolute left-1/2 -bottom-3 -translate-x-1/2 w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:scale-110 z-50"><Plus size={14} /></button>
-                    <button onMouseDown={(e) => { e.stopPropagation(); onQuickSpawn(data.id, 'left'); }} className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:scale-110 z-50"><Plus size={14} /></button>
-                    <button onMouseDown={(e) => { e.stopPropagation(); onQuickSpawn(data.id, 'top'); }} className="absolute left-1/2 -top-3 -translate-x-1/2 w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:scale-110 z-50"><Plus size={14} /></button>
+                    <button
+                        onMouseDown={(e) => { e.stopPropagation(); onQuickSpawn(data.id, 'right'); }}
+                        className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:scale-110 z-50"
+                        aria-label="Spawn card to the right"
+                        title="Spawn right"
+                    >
+                        <Plus size={14} />
+                    </button>
+                    <button
+                        onMouseDown={(e) => { e.stopPropagation(); onQuickSpawn(data.id, 'bottom'); }}
+                        className="absolute left-1/2 -bottom-3 -translate-x-1/2 w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:scale-110 z-50"
+                        aria-label="Spawn card below"
+                        title="Spawn below"
+                    >
+                        <Plus size={14} />
+                    </button>
+                    <button
+                        onMouseDown={(e) => { e.stopPropagation(); onQuickSpawn(data.id, 'left'); }}
+                        className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:scale-110 z-50"
+                        aria-label="Spawn card to the left"
+                        title="Spawn left"
+                    >
+                        <Plus size={14} />
+                    </button>
+                    <button
+                        onMouseDown={(e) => { e.stopPropagation(); onQuickSpawn(data.id, 'top'); }}
+                        className="absolute left-1/2 -top-3 -translate-x-1/2 w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:scale-110 z-50"
+                        aria-label="Spawn card above"
+                        title="Spawn above"
+                    >
+                        <Plus size={14} />
+                    </button>
                 </>
             )}
 
@@ -162,12 +193,33 @@ export const Card: React.FC<CardProps> = ({
 
                     <div className="flex gap-1 items-center">
                         <button onClick={(e) => { e.stopPropagation(); void onShare(data.id); }} className={`p-1.5 hover:bg-white/20 rounded transition-colors ${darkMode ? 'text-slate-400' : 'text-slate-500'}`} title="Share Link"><Share2 size={14} /></button>
-                        <button onClick={(e) => { e.stopPropagation(); updateThread(data.id, { locked: !data.locked }); }} className={`p-1.5 rounded transition-colors ${data.locked ? 'text-indigo-500' : 'text-slate-400 opacity-0 group-hover:opacity-100'}`}>{data.locked ? <Lock size={12} /> : <Unlock size={12} />}</button>
+                        <button
+                            onClick={(e) => { e.stopPropagation(); updateThread(data.id, { locked: !data.locked }); }}
+                            className={`p-1.5 rounded transition-colors ${data.locked ? 'text-indigo-500' : 'text-slate-400 opacity-0 group-hover:opacity-100'}`}
+                            aria-label={data.locked ? 'Unlock card' : 'Lock card'}
+                            title={data.locked ? 'Unlock' : 'Lock'}
+                        >
+                            {data.locked ? <Lock size={12} /> : <Unlock size={12} />}
+                        </button>
                         {!data.locked && (
                             <>
                                 <button onClick={(e) => { e.stopPropagation(); setShowTickerInput(!showTickerInput); setShowImageInput(false); }} className={`p-1.5 hover:bg-white/20 rounded transition-colors ${showTickerInput ? 'text-indigo-500' : 'text-slate-400'}`} title="Add Ticker"><Activity size={14} /></button>
-                                <button onClick={(e) => { e.stopPropagation(); setShowImageInput(!showImageInput); setShowTickerInput(false); }} className={`p-1.5 hover:bg-white/20 rounded transition-colors ${showImageInput ? 'text-indigo-500' : 'text-slate-400'}`}><ImageIcon size={14} /></button>
-                                <button onClick={(e) => { e.stopPropagation(); setConnectMode(data.id); }} className={`p-1.5 hover:bg-white/20 rounded transition-colors ${connectMode ? 'text-blue-500 bg-blue-500/10' : 'text-slate-400'}`}><LinkIcon size={14} /></button>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setShowImageInput(!showImageInput); setShowTickerInput(false); }}
+                                    className={`p-1.5 hover:bg-white/20 rounded transition-colors ${showImageInput ? 'text-indigo-500' : 'text-slate-400'}`}
+                                    aria-label="Add image"
+                                    title="Add image"
+                                >
+                                    <ImageIcon size={14} />
+                                </button>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setConnectMode(data.id); }}
+                                    className={`p-1.5 hover:bg-white/20 rounded transition-colors ${connectMode ? 'text-blue-500 bg-blue-500/10' : 'text-slate-400'}`}
+                                    aria-label="Connect mode"
+                                    title="Connect mode"
+                                >
+                                    <LinkIcon size={14} />
+                                </button>
                             </>
                         )}
                     </div>
@@ -179,15 +231,24 @@ export const Card: React.FC<CardProps> = ({
             {showTickerInput && !data.locked && (
                 <form onSubmit={(e) => { e.preventDefault(); if (tickerInput.trim()) { updateThread(data.id, { ticker: tickerInput.toUpperCase() }); setShowTickerInput(false); setTickerInput(''); } }} className="px-3 pb-2">
                     <div className="flex gap-2">
-                        <input type="text" value={tickerInput} onChange={(e) => { setTickerInput(e.target.value); }} placeholder="Symbol (e.g. BTC)" className={`flex-1 text-xs px-2 py-1 rounded border focus:outline-none ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-200' : 'bg-white border-indigo-200 text-slate-800'}`} autoFocus />
-                        <button type="submit" className="bg-indigo-500 text-white p-1 rounded hover:bg-indigo-600"><Plus size={12} /></button>
+                        <input type="text" value={tickerInput} onChange={(e) => { setTickerInput(e.target.value); }} placeholder="Symbol (e.g. BTC)" aria-label="Ticker symbol" className={`flex-1 text-xs px-2 py-1 rounded border focus:outline-none ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-200' : 'bg-white border-indigo-200 text-slate-800'}`} autoFocus />
+                        <button type="submit" className="bg-indigo-500 text-white p-1 rounded hover:bg-indigo-600" aria-label="Add ticker" title="Add ticker"><Plus size={12} /></button>
                     </div>
                 </form>
             )}
             {data.ticker && (
                 <div className="px-3 relative group">
                     <TickerWidget symbol={data.ticker} sentiment={data.sentiment} darkMode={darkMode} />
-                    {!data.locked && <button onClick={() => { updateThread(data.id, { ticker: null }); }} className="absolute top-1 right-4 bg-black/50 text-white p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><X size={10} /></button>}
+                    {!data.locked && (
+                        <button
+                            onClick={() => { updateThread(data.id, { ticker: null }); }}
+                            className="absolute top-1 right-4 bg-black/50 text-white p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            aria-label="Remove ticker"
+                            title="Remove ticker"
+                        >
+                            <X size={10} />
+                        </button>
+                    )}
                 </div>
             )}
 
@@ -195,8 +256,8 @@ export const Card: React.FC<CardProps> = ({
             {showImageInput && !data.locked && (
                 <form onSubmit={(e) => { e.preventDefault(); if (imageUrlInput.trim()) { updateThread(data.id, { imageUrl: imageUrlInput }); setShowImageInput(false); setImageUrlInput(''); } }} className="px-3 pb-2">
                     <div className="flex gap-2">
-                        <input type="text" value={imageUrlInput} onChange={(e) => { setImageUrlInput(e.target.value); }} placeholder="Paste image URL..." className={`flex-1 text-xs px-2 py-1 rounded border focus:outline-none ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-200' : 'bg-white border-indigo-200 text-slate-800'}`} autoFocus />
-                        <button type="submit" className="bg-indigo-500 text-white p-1 rounded hover:bg-indigo-600"><Plus size={12} /></button>
+                        <input type="text" value={imageUrlInput} onChange={(e) => { setImageUrlInput(e.target.value); }} placeholder="Paste image URL..." aria-label="Image URL" className={`flex-1 text-xs px-2 py-1 rounded border focus:outline-none ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-200' : 'bg-white border-indigo-200 text-slate-800'}`} autoFocus />
+                        <button type="submit" className="bg-indigo-500 text-white p-1 rounded hover:bg-indigo-600" aria-label="Add image" title="Add image"><Plus size={12} /></button>
                     </div>
                 </form>
             )}
@@ -215,7 +276,16 @@ export const Card: React.FC<CardProps> = ({
                                 }
                             }}
                         />
-                        {!data.locked && <button onClick={() => { updateThread(data.id, { imageUrl: null }); }} className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"><X size={10} /></button>}
+                        {!data.locked && (
+                            <button
+                                onClick={() => { updateThread(data.id, { imageUrl: null }); }}
+                                className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                aria-label="Remove image"
+                                title="Remove image"
+                            >
+                                <X size={10} />
+                            </button>
+                        )}
                     </div>
                 </div>
             )}
@@ -230,7 +300,16 @@ export const Card: React.FC<CardProps> = ({
                 {data.tags && data.tags.map(tag => (
                     <span key={tag} className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold border ${darkMode ? 'bg-slate-800/50 text-slate-400 border-slate-700' : 'bg-white/50 text-slate-600 border-white/20'}`}>
                         {tag}
-                        {!data.locked && <button onClick={() => { updateThread(data.id, { tags: data.tags?.filter(t => t !== tag) }); }} className="ml-1 hover:text-red-500"><X size={8} /></button>}
+                        {!data.locked && (
+                            <button
+                                onClick={() => { updateThread(data.id, { tags: data.tags?.filter(t => t !== tag) }); }}
+                                className="ml-1 hover:text-red-500"
+                                aria-label={`Remove tag ${tag}`}
+                                title={`Remove ${tag}`}
+                            >
+                                <X size={8} />
+                            </button>
+                        )}
                     </span>
                 ))}
                 {!data.locked && (
@@ -239,7 +318,7 @@ export const Card: React.FC<CardProps> = ({
                             <input autoFocus type="text" value={newTag} onChange={(e) => { setNewTag(e.target.value); }} onBlur={() => { setShowTagInput(false); }} className={`w-16 text-xs rounded px-1 py-0.5 outline-none ${darkMode ? 'bg-slate-800 text-white' : 'bg-white/70'}`} placeholder="TAG" />
                         </form>
                     ) : (
-                        <button onClick={() => { setShowTagInput(true); }} className="p-0.5 text-slate-400 hover:text-slate-500"><Plus size={12} /></button>
+                        <button onClick={() => { setShowTagInput(true); }} className="p-0.5 text-slate-400 hover:text-slate-500" aria-label="Add tag" title="Add tag"><Plus size={12} /></button>
                     )
                 )}
             </div>
@@ -277,10 +356,10 @@ export const Card: React.FC<CardProps> = ({
                     </div>
                     <form onSubmit={handleAddComment} className="flex gap-2">
                         <input type="text" value={newComment} onChange={(e) => { setNewComment(e.target.value); }} placeholder="Add a comment..." className={`flex-1 rounded-md px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400 ${darkMode ? 'bg-slate-800 text-slate-200 placeholder-slate-500' : 'bg-slate-100 text-slate-800'}`} />
-                        <button type="submit" className="p-1.5 bg-indigo-500 text-white rounded-md hover:bg-indigo-600"><Send size={12} /></button>
+                        <button type="submit" className="p-1.5 bg-indigo-500 text-white rounded-md hover:bg-indigo-600" aria-label="Send comment" title="Send"><Send size={12} /></button>
                     </form>
                 </div>
             )}
-        </div>
+        </motion.div>
     );
 };

@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Thread } from '@/lib/types';
 import { Check, Edit2, X } from 'lucide-react';
 import { User } from '@supabase/supabase-js';
+import { motion } from 'framer-motion';
 
 interface ProfileProps {
     user: User | null;
@@ -52,22 +53,24 @@ export const Profile: React.FC<ProfileProps> = ({ user, threads, onClose, darkMo
                                         <input
                                             value={tempName}
                                             onChange={(e) => { setTempName(e.target.value); }}
+                                            aria-label="Display name"
+                                            placeholder="Display name"
                                             className={`text-lg font-bold w-32 bg-transparent border-b focus:outline-none ${darkMode ? 'border-slate-500' : 'border-slate-300'}`}
                                             autoFocus
                                         />
-                                        <button onClick={() => { handleSaveName(); }} className="text-emerald-500"><Check size={14} /></button>
+                                        <button onClick={() => { handleSaveName(); }} className="text-emerald-500" aria-label="Save name" title="Save"><Check size={14} /></button>
                                     </div>
                                 ) : (
                                     <>
                                         <h2 className="font-bold text-lg">{userName}</h2>
-                                        <button onClick={() => { setIsEditing(true); }} className="text-slate-400 hover:text-indigo-500"><Edit2 size={12} /></button>
+                                        <button onClick={() => { setIsEditing(true); }} className="text-slate-400 hover:text-indigo-500" aria-label="Edit name" title="Edit"><Edit2 size={12} /></button>
                                     </>
                                 )}
                             </div>
                             <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>ID: {user.id.slice(0, 8)}...</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className={`p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors`}><X size={16} /></button>
+                    <button onClick={onClose} className={`p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors`} aria-label="Close profile" title="Close"><X size={16} /></button>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 mb-6">
@@ -87,8 +90,16 @@ export const Profile: React.FC<ProfileProps> = ({ user, threads, onClose, darkMo
                         <span className="text-rose-500">Bearish {bearishCount}</span>
                     </div>
                     <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden flex">
-                        <div style={{ width: `${(bullishCount / (bullishCount + bearishCount || 1)) * 100}%` }} className="h-full bg-emerald-500" />
-                        <div style={{ width: `${(bearishCount / (bullishCount + bearishCount || 1)) * 100}%` }} className="h-full bg-rose-500" />
+                        <motion.div
+                            className="h-full bg-emerald-500"
+                            animate={{ width: `${(bullishCount / (bullishCount + bearishCount || 1)) * 100}%` }}
+                            transition={{ duration: 0 }}
+                        />
+                        <motion.div
+                            className="h-full bg-rose-500"
+                            animate={{ width: `${(bearishCount / (bullishCount + bearishCount || 1)) * 100}%` }}
+                            transition={{ duration: 0 }}
+                        />
                     </div>
                 </div>
 
