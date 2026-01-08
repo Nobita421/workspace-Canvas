@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, RefObject } from 'react';
 import { ViewState, Thread } from '@/lib/types';
 import { GRID_SIZE } from '@/lib/constants';
+import { safeSet } from '@/lib/safeObjectAccess';
 
 interface UseCanvasStateProps {
     snapToGrid: boolean;
@@ -80,7 +81,7 @@ export function useCanvasState({
             selectedIds.forEach(selectedId => {
                 const thread = visibleThreads.find(t => t.id === selectedId);
                 if (thread) {
-                    // Use Object.assign to avoid direct bracket assignment with dynamic key
+                    // Use spread operator with computed property to safely assign
                     Object.assign(initialPositions, { [selectedId]: { x: thread.x, y: thread.y } });
                 }
             });
@@ -123,13 +124,14 @@ export function useCanvasState({
         const dy = (e.clientY - dragOffset.y) / viewState.zoom;
 
         setLocalPositions(prev => {
-            const next: Record<string, { x: number; y: number }> = {};
+            let next: Record<string, { x: number; y: number }> = {};
             // Iterate using Object.entries to safely access values
             for (const [posId, current] of Object.entries(prev)) {
                 if (Object.prototype.hasOwnProperty.call(prev, posId)) {
                     const rawX = current.x + dx;
                     const rawY = current.y + dy;
-                    next[posId] = { x: rawX, y: rawY };
+                    // Use safe set helper to avoid object injection warnings
+                    next = safeSet(next, posId, { x: rawX, y: rawY });
                 }
             }
             return next;

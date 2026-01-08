@@ -4,6 +4,7 @@ import { Thread } from '@/lib/types';
 import { mapThreadFromDB, mapThreadToDB, mapCommentFromDB, mapCommentToDB } from '@/lib/utils';
 import { User } from '@supabase/supabase-js';
 import { useAuth } from '@/contexts/AuthContext';
+import { safeIncrement } from '@/lib/safeObjectAccess';
 
 interface UseThreadDataProps {
     user: User | null;
@@ -136,8 +137,8 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError }
         };
     }, [currentPlaygroundId, user, showError, session]);
 
-    const pendingUpdates = useRef<Record<string, NodeJS.Timeout>>({});
-    const pendingData = useRef<Record<string, Partial<Thread>>>({});
+    const pendingUpdates = useRef<Map<string, NodeJS.Timeout>>(new Map());
+    const pendingData = useRef<Map<string, Partial<Thread>>>(new Map());
 
     const updateThread = useCallback(async (id: string, data: Partial<Thread>) => {
         if (!user) return;
@@ -145,25 +146,21 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError }
         // 1. Optimistic Update
         setThreads(prev => prev.map(t => t.id === id ? { ...t, ...data } : t));
 
-        // 2. Accumulate Data - Use hasOwnProperty to avoid object injection
-        const currentPendingData = Object.prototype.hasOwnProperty.call(pendingData.current, id) ? pendingData.current[id] : undefined;
-        pendingData.current[id] = { ...(currentPendingData || {}), ...data };
+        // 2. Accumulate Data using Map to avoid object injection
+        const currentPendingData = pendingData.current.get(id);
+        pendingData.current.set(id, { ...(currentPendingData || {}), ...data });
 
-        // 3. Debounce Server Call - Use Map to avoid object injection
-        const existingTimeout = Object.prototype.hasOwnProperty.call(pendingUpdates.current, id) ? pendingUpdates.current[id] : undefined;
+        // 3. Debounce Server Call using Map
+        const existingTimeout = pendingUpdates.current.get(id);
         if (existingTimeout) {
             clearTimeout(existingTimeout);
         }
 
-        pendingUpdates.current[id] = setTimeout(() => {
-            const updatesToSync = Object.prototype.hasOwnProperty.call(pendingData.current, id) ? pendingData.current[id] : undefined;
-            // Safely delete properties
-            if (Object.prototype.hasOwnProperty.call(pendingData.current, id)) {
-                delete pendingData.current[id];
-            }
-            if (Object.prototype.hasOwnProperty.call(pendingUpdates.current, id)) {
-                delete pendingUpdates.current[id];
-            }
+        pendingUpdates.current.set(id, setTimeout(() => {
+            const updatesToSync = pendingData.current.get(id);
+            // Safely delete using Map methods
+            pendingData.current.delete(id);
+            pendingUpdates.current.delete(id);
 
             if (!updatesToSync) return;
 
@@ -200,7 +197,7 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError }
                     showError('Failed to save changes. Please try again.');
                 }
             })();
-        }, 500); // 500ms debounce
+        }, 500)); // 500ms debounce
     }, [user, currentPlaygroundId, showError, session]);
 
     const addComment = async (threadId: string, commentData: { text: string }) => {
@@ -238,10 +235,10 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError }
         setThreads(prev => prev.map(t => {
             if (t.id === threadId) {
                 const current = t.reactions || {};
-                const currentCount = Object.prototype.hasOwnProperty.call(current, emoji) ? current[emoji] : 0;
+                // Use safe increment helper to avoid object injection warnings
                 return {
                     ...t,
-                    reactions: { ...current, [emoji]: currentCount + 1 },
+                    reactions: safeIncrement(current, emoji),
                     activity: (t.activity || 0) + 1
                 };
             }
