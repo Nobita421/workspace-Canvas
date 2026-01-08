@@ -53,18 +53,12 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ threads, zoom,
         targets.forEach(tid => {
             const target = threads.find(x => x.id === tid);
             if (target) {
-                // Use a getter function to safely access the label
-                const getLabel = (labels: Record<string, string> | undefined, key: string): string | null => {
-                    if (!labels) return null;
-                    if (Object.prototype.hasOwnProperty.call(labels, key)) {
-                        return labels[key];
-                    }
-                    return null;
-                };
+                // Safely access label using optional chaining and nullish coalescing
+                const label = t.connectionLabels?.[tid] ?? null;
                 lines.push({
                     source: t,
                     target: target,
-                    label: getLabel(t.connectionLabels, tid)
+                    label
                 });
             }
         });
