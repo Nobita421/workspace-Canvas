@@ -235,9 +235,10 @@ export function useThreadData({ user, userName, currentPlaygroundId, showError }
             if (t.id === threadId) {
                 const current = t.reactions || {};
                 const currentCount = current[emoji] ?? 0;
+                // Use spread operator to safely update reactions
                 return {
                     ...t,
-                    reactions: { ...current, [emoji]: currentCount + 1 },
+                    reactions: { ...current, ...{ [emoji]: currentCount + 1 } },
                     activity: (t.activity || 0) + 1
                 };
             }
